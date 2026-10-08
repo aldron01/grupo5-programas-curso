@@ -1,0 +1,41 @@
+{
+  "programas": [
+    {
+      "id": 1,
+      "codigo": "IS24-PW",
+      "asignatura": "Programación Web",
+      "programa_academico": "Licenciatura en Ingeniería de Sistemas",
+      "unidad_academica": "Facultad de Ingeniería, Industria y Tecnología",
+      "departamento": "Ingeniería",
+      "facultad": "Ingeniería, Industria y Tecnología",
+      "ciclo_academico": "4to. Semestre",
+      "anio": 2026,
+      "nivel_academico": "Licenciatura",
+      "area_formacion": "Diseño de Ingeniería",
+      "pensum": "2024",
+      "modalidad": "e-Learning (síncrono) - presencial",
+      "creditos": 4,
+      "horas_semanales": 4,
+      "sede": "Huehuetenango",
+      "profesor": "Ing. Juan Carlos Maeda Juárez",
+      "version_actual": 1,
+      "estado": "borrador"
+    }
+  ],
+  "versiones": [
+    {
+      "id": 1,
+      "programa_id": 1,
+      "numero_version": 1,
+      "estado": "borrador"
+    }
+  ],
+  "historial": [
+    {
+      "fecha": "2026-10-05",
+      "accion": "Creación",
+      "usuario": "Ing. Juan Carlos Maeda Juárez",
+      "descripcion": "Se creó la versión 1 del programa."
+    }
+  ]
+}
