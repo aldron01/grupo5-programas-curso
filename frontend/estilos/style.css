@@ -451,8 +451,8 @@ button:hover {
 }
 
 #docente[readonly],
-#coordinador[readonly],
-#decano[readonly] {
+#nombre-decanatura[readonly],
+#nombre-coordinador[readonly] {
   background: #eef1f5;
   cursor: not-allowed;
 }

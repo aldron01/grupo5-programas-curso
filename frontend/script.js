@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Responsables
   const docente = document.getElementById("docente");
-  const coordinador = document.getElementById("coordinador");
-  const decano = document.getElementById("decano");
+  const nombreDecanatura = document.getElementById("nombre-decanatura");
+  const nombreCoordinador = document.getElementById("nombre-coordinador");
 
   // Botones
   const guardar = document.getElementById("guardar-seccion");
@@ -32,6 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const enlacesSecciones = document.querySelectorAll(".nav-secciones a");
   const secciones = document.querySelectorAll(".seccion");
+  const camposPrograma = document.querySelectorAll(
+    ".seccion input, .seccion textarea, .seccion select",
+  );
 
   enlacesSecciones.forEach((enlace) => {
     enlace.addEventListener("click", (evento) => {
@@ -62,15 +65,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // CAMBIO DE ROL
 
   rol.addEventListener("change", () => {
-    actualizarInterfaz();
-    actualizarEdicionResponsables();
-
+    actualizarEstado();
     mostrarMensaje("Rol cambiado a: " + obtenerNombreRol());
   });
 
   // GUARDAR BORRADOR
 
   guardar.addEventListener("click", () => {
+    if (rol.value !== "docente") {
+      alert("Solo el docente puede guardar el borrador.");
+
+      return;
+    }
+
     if (estado !== "borrador" && estado !== "devuelto") {
       alert("El programa no puede modificarse " + "en este estado.");
 
@@ -87,27 +94,39 @@ document.addEventListener("DOMContentLoaded", () => {
   // ENVIAR A REVISIÓN
 
   enviarRevision.addEventListener("click", () => {
-    if (rol.value !== "docente") {
-      alert("Solo el docente puede enviar " + "el programa a revisión.");
+    if (rol.value === "docente") {
+      if (!docente.value.trim()) {
+        alert("Escribe el nombre del docente antes de enviar a revisión.");
 
+        return;
+      }
+
+      estado = "en-revision";
+      actualizarEstado();
+      mostrarMensaje("Programa enviado a Coordinación académica para revisión.");
       return;
     }
 
-    if (!docente.value.trim()) {
-      alert("Escribe el nombre del docente antes de enviar a revisión.");
+    if (rol.value === "decanatura") {
+      if (estado !== "aprobado") {
+        alert("El programa debe estar aprobado para enviarlo a revisión nuevamente.");
 
+        return;
+      }
+
+      estado = "en-revision";
+      actualizarEstado();
+      mostrarMensaje("Programa enviado nuevamente a revisión por la Decanatura.");
       return;
     }
 
-    estado = "en-revision";
-    actualizarEstado();
-    mostrarMensaje("Programa enviado al coordinador para revisión.");
+    alert("Este rol no puede enviar el programa a revisión.");
   });
 
   // DEVOLVER AL DOCENTE
   devolver.addEventListener("click", () => {
-    if (rol.value !== "coordinador") {
-      alert("Solo el coordinador puede devolver " + "el programa.");
+    if (rol.value !== "coordinador-academico") {
+      alert("Solo el Coordinador académico puede devolver " + "el programa.");
 
       return;
     }
@@ -118,8 +137,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!coordinador.value.trim()) {
-      alert("Escribe el nombre del coordinador antes de revisar el programa.");
+    if (!nombreCoordinador.value.trim()) {
+      alert(
+        "Escribe el nombre del Coordinador académico " +
+          "antes de revisar el programa.",
+      );
 
       return;
     }
@@ -132,8 +154,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // APROBAR
 
   aprobar.addEventListener("click", () => {
-    if (rol.value !== "coordinador") {
-      alert("Solo el coordinador puede aprobar " + "el programa.");
+    if (rol.value !== "coordinador-academico") {
+      alert("Solo el Coordinador académico puede aprobar " + "el programa.");
       return;
     }
 
@@ -142,8 +164,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!coordinador.value.trim()) {
-      alert("Escribe el nombre del coordinador antes de revisar el programa.");
+    if (!nombreCoordinador.value.trim()) {
+      alert(
+        "Escribe el nombre del Coordinador académico " +
+          "antes de aprobar el programa.",
+      );
 
       return;
     }
@@ -152,14 +177,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     actualizarEstado();
 
-    mostrarMensaje("Programa aprobado y enviado al decano.");
+    mostrarMensaje("Programa aprobado. Ya puede autorizarse.");
   });
 
   // AUTORIZAR
 
   autorizar.addEventListener("click", () => {
-    if (rol.value !== "decano") {
-      alert("Solo el decano puede autorizar " + "una versión.");
+    if (rol.value !== "decanatura") {
+      alert("Solo la Decanatura puede autorizar " + "una versión.");
 
       return;
     }
@@ -170,8 +195,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!decano.value.trim()) {
-      alert("Escribe el nombre del decano antes de autorizar la versión.");
+    if (!nombreDecanatura.value.trim()) {
+      alert("Escribe el nombre de la Decanatura antes de autorizar la versión.");
 
       return;
     }
@@ -274,8 +299,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const cuerpoAutorizacion = crearElemento("tbody");
     [
       ["Elaborado por", docente.value.trim()],
-      ["Revisor", coordinador.value.trim()],
-      ["Autoridad", decano.value.trim()],
+      ["Facultad", facultad],
+      ["Decanatura", nombreDecanatura.value.trim()],
+      [
+        "Coordinador académico",
+        nombreCoordinador.value.trim(),
+      ],
       ["Fecha", new Date().toLocaleDateString("es-GT")],
     ].forEach(([campo, valor]) => {
       const fila = crearElemento("tr");
@@ -290,7 +319,11 @@ document.addEventListener("DOMContentLoaded", () => {
     documentoPdf.append(autorizacion);
 
     const firmas = crearElemento("footer", "pdf-firmas");
-    ["Elaborado por", "Revisor", "Autoridad"].forEach((cargo) => {
+    [
+      "Elaborado por",
+      "Decanatura",
+      "Coordinador académico",
+    ].forEach((cargo) => {
       const firma = crearElemento("div", "pdf-firma");
       firma.append(
         crearElemento("div", "pdf-linea-firma"),
@@ -304,8 +337,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // CREAR NUEVA VERSIÓN
 
   crearVersion.addEventListener("click", () => {
-    if (rol.value !== "decano") {
-      alert("Solo el decano puede crear una nueva versión.");
+    if (rol.value !== "coordinador-academico") {
+      alert("Solo el Coordinador académico puede crear una nueva versión.");
       return;
     }
 
@@ -315,6 +348,14 @@ document.addEventListener("DOMContentLoaded", () => {
           "a partir de una versión autorizada.",
       );
 
+      return;
+    }
+
+    if (!nombreCoordinador.value.trim()) {
+      alert(
+        "Escribe el nombre del Coordinador académico " +
+          "antes de crear una nueva versión.",
+      );
       return;
     }
 
@@ -375,17 +416,36 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function actualizarEdicionResponsables() {
-    docente.readOnly = !(
+    const puedeEditarPrograma =
       rol.value === "docente" &&
-      (estado === "borrador" || estado === "devuelto")
+      (estado === "borrador" || estado === "devuelto");
+
+    camposPrograma.forEach((control) => {
+      if (control instanceof HTMLSelectElement) {
+        control.disabled = !puedeEditarPrograma;
+      } else if (
+        control instanceof HTMLInputElement ||
+        control instanceof HTMLTextAreaElement
+      ) {
+        control.readOnly = !puedeEditarPrograma;
+      }
+    });
+
+    docente.readOnly = !puedeEditarPrograma;
+    nombreDecanatura.readOnly = !(
+      rol.value === "decanatura" && estado === "aprobado"
     );
-    coordinador.readOnly = !(
-      rol.value === "coordinador" && estado === "en-revision"
+    nombreCoordinador.readOnly = !(
+      rol.value === "coordinador-academico" &&
+      (estado === "en-revision" || estado === "autorizado")
     );
-    decano.readOnly = !(rol.value === "decano" && estado === "aprobado");
   }
   // MOSTRAR / OCULTAR BOTONES
   function actualizarInterfaz() {
+    enviarRevision.textContent =
+      rol.value === "decanatura" && estado === "aprobado"
+        ? "Enviar nuevamente a revisión"
+        : "Enviar a revisión";
     vistaPreviaPdf.style.display = "inline-block";
     imprimirPdf.style.display = "none";
     cerrarVistaPrevia.style.display = "none";
@@ -415,18 +475,19 @@ document.addEventListener("DOMContentLoaded", () => {
         cancelar.style.display = "inline-block";
       }
     }
-    // COORDINADOR
-    if (rol.value === "coordinador") {
-      if (estado === "en-revision") {
-        devolver.style.display = "inline-block";
 
-        aprobar.style.display = "inline-block";
+    // AUTORIDAD (DECANATURA)
+    if (rol.value === "decanatura") {
+      if (estado === "aprobado") {
+        enviarRevision.style.display = "inline-block";
+        autorizar.style.display = "inline-block";
       }
     }
-    // DECANO
-    if (rol.value === "decano") {
-      if (estado === "aprobado") {
-        autorizar.style.display = "inline-block";
+    // COORDINADOR ACADÉMICO
+    if (rol.value === "coordinador-academico") {
+      if (estado === "en-revision") {
+        devolver.style.display = "inline-block";
+        aprobar.style.display = "inline-block";
       }
       if (estado === "autorizado") {
         crearVersion.style.display = "inline-block";
@@ -439,16 +500,17 @@ document.addEventListener("DOMContentLoaded", () => {
       case "docente":
         return "Docente";
 
-      case "coordinador":
-        return "Coordinador";
+      case "coordinador-academico":
+        return "Coordinador académico";
 
-      case "decano":
-        return "Decano";
+      case "decanatura":
+        return "Decanatura";
 
       default:
         return "Desconocido";
     }
   }
+
   // MENSAJE DE GUARDADO
 
   function mostrarMensaje(mensaje) {
@@ -463,5 +525,4 @@ document.addEventListener("DOMContentLoaded", () => {
   // INICIAR SISTEMA
 
   actualizarEstado();
-  actualizarEdicionResponsables();
 });

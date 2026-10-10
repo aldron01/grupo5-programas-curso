@@ -48,10 +48,8 @@
 
             <select id="rol" class="rol">
               <option value="docente">Docente</option>
-
-              <option value="coordinador">Decano</option>
-
-              <option value="decano">Administracion</option>
+              <option value="coordinador-academico">Coordinador académico</option>
+              <option value="decanatura">Decanatura</option>
             </select>
           </div>
         </header>
@@ -74,22 +72,24 @@
             </div>
 
             <div class="campo">
-              <label for="coordinador"> Coordinador </label>
+              <label for="nombre-decanatura"> Decanatura </label>
 
               <input
                 type="text"
-                id="coordinador"
-                placeholder="Escriba el nombre del coordinador"
+                id="nombre-decanatura"
+                placeholder="Escriba el nombre de la decanatura"
               />
             </div>
 
             <div class="campo">
-              <label for="decano"> Decano </label>
+              <label for="nombre-coordinador">
+                Coordinador académico
+              </label>
 
               <input
                 type="text"
-                id="decano"
-                placeholder="Escriba el nombre del decano"
+                id="nombre-coordinador"
+                placeholder="Escriba el nombre del coordinador académico"
               />
             </div>
           </div>
@@ -351,15 +351,20 @@
         <!-- ACCIONES -->
         <div class="acciones-programa">
           <button type="button" id="guardar-seccion">Guardar borrador</button>
-          <button type="button" id="crear-version"> Crear nueva versión</button>
-          <button type="button" id="enviar-revision" class="guardar">Enviar a revisión</button>
+          <button type="button" id="crear-version">Crear nueva versión</button>
+          <button type="button" id="enviar-revision" class="guardar">
+            Enviar a revisión
+          </button>
           <button type="button" id="devolver">Devolver al docente</button>
           <button type="button" id="aprobar">Aprobar</button>
           <button type="button" id="autorizar">Autorizar versión</button>
           <button type="button" id="vista-previa-pdf">Vista previa PDF</button>
-          <button type="button" id="imprimir-pdf" hidden>Imprimir / Guardar PDF</button>
-          <button type="button" id="cerrar-vista-previa" hidden>Volver al editor</button>
-
+          <button type="button" id="imprimir-pdf" hidden>
+            Imprimir / Guardar PDF
+          </button>
+          <button type="button" id="cerrar-vista-previa" hidden>
+            Volver al editor
+          </button>
           <button type="button" id="cancelar-cambios">
             Cancelar cambios
           </button>
