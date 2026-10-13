@@ -62,22 +62,23 @@ No asumir que existen carpetas, archivos, funciones o módulos que no se hayan c
 
 Existe una interfaz en `frontend/Demo.html`, los estilos en `frontend/estilos/style.css` y el JavaScript en `frontend/script.js`.
 
-El proyecto utiliza una interfaz con menú lateral, secciones de formulario, controles de navegación y botones de acciones.
-
-Se ha trabajado en un prototipo de workflow con los roles Docente, Administrador y Decano. Administración revisa, devuelve o aprueba los programas; el Decano autoriza las versiones aprobadas.
-
-Los nombres del docente, del decano y de la persona responsable de Administración se escriben manualmente en campos de texto. La Facultad se registra en Información general.
-
-El selector de rol utilizado para probar el workflow es una simulación; no representa un sistema real de autenticación y permisos.
+El proyecto utiliza una interfaz con menú lateral, secciones de formulario y
+botones de acciones. El workflow actual usa Docente,
+Coordinación académica y Decanatura; sus nombres se registran al realizar las
+acciones. El selector de rol es una simulación, no un inicio de sesión.
 
 ### Backend
 
-El archivo `backend/main.py` implementa un servidor Python usando `SimpleHTTPRequestHandler` y `ThreadingHTTPServer`.
+El archivo `backend/main.py` implementa un servidor Python usando
+`SimpleHTTPRequestHandler` y `ThreadingHTTPServer`. La dependencia PDF se
+instala desde `backend/requirements.txt`.
 
-El servidor se inicia con:
+Instala las dependencias y ejecuta el servidor desde la raíz del proyecto:
 
 ```bash
-python3 backend/main.py
+python3 -m venv .venv
+.venv/bin/python -m pip install -r backend/requirements.txt
+.venv/bin/python backend/main.py
 ```
 
 La dirección local es:
@@ -86,14 +87,10 @@ La dirección local es:
 
 El servidor carga `frontend/Demo.html` al abrir la ruta principal `/`.
 
-Actualmente existen estos endpoints:
-
-- `GET /api/programas`: lee y devuelve el contenido de `programas.json`.
-- `PUT /api/programas`: recibe el JSON completo, valida que incluya `programas`, `versiones` e `historial`, y guarda los datos.
-
-El método PUT utiliza un archivo temporal antes de reemplazar el JSON.
-
-Estos endpoints funcionan como una API inicial. No representan todavía el workflow completo solicitado.
+El backend implementa los endpoints de programas, versiones, secciones,
+workflow, comparación de versiones y descarga PDF descritos en la sección 9.
+La escritura JSON se realiza mediante archivo temporal. `PUT /api/programas`
+ya no se admite para impedir reemplazar los datos sin seguir el flujo.
 
 ### Almacenamiento
 
@@ -168,15 +165,15 @@ Estas secciones deben verificarse contra `Formulario.pdf`. Si el documento conti
 
 ## 8. Workflow del sistema
 
-El flujo general esperado es:
+El flujo implementado es:
 
-**Borrador → Enviado → En revisión → Devuelto o Aprobado → Autorizado → Vigente**
+**Borrador → En revisión → Devuelto o Aprobado → Vigente**
 
 Comportamiento:
 
 - **Docente:** crea y edita el programa, guarda borradores y lo envía a revisión.
-- **Administrador:** revisa el contenido, puede devolverlo o aprobarlo, y crea nuevas versiones a partir de una versión autorizada.
-- **Decano:** autoriza las versiones aprobadas.
+- **Coordinación académica:** revisa el contenido, puede devolverlo o aprobarlo y crea nuevas versiones a partir de la vigente.
+- **Decanatura:** autoriza las versiones aprobadas.
 
 Reglas importantes:
 
@@ -185,14 +182,17 @@ Reglas importantes:
 - No permitir autorizar una versión que no haya sido aprobada.
 - Una versión autorizada debe conservarse como registro histórico.
 - Las modificaciones posteriores deben realizarse en una nueva versión.
-- Al autorizar una nueva versión, la anterior deja de ser vigente, sin borrar su historial.
+- Al autorizar una nueva versión, la anterior pasa a `reemplazado` sin borrar su historial.
 - No permitir transiciones de estado que incumplan el workflow.
 
-Los permisos deben validarse en el backend. Ocultar botones en JavaScript no constituye seguridad suficiente.
+El backend valida el rol declarado para cada acción. El selector de rol es una
+simulación académica, no autenticación: cualquier cliente puede falsificar el
+rol enviado en una solicitud. No debe desplegarse como sistema seguro sin
+autenticación real y asociación de permisos a la identidad autenticada.
 
-## 9. Endpoints REST planificados
+## 9. Endpoints REST disponibles
 
-Los siguientes endpoints son los objetivos de la API. Deben implementarse y probarse antes de considerarlos terminados.
+El backend implementa los siguientes endpoints:
 
 ### Programas
 
@@ -219,7 +219,9 @@ Los siguientes endpoints son los objetivos de la API. Deben implementarse y prob
 
 - `GET /program-versions/{id}/pdf`: generar o descargar el PDF institucional.
 
-**Importante:** estos endpoints usan las rutas previstas en los requisitos. La API actual utiliza `/api/programas`. Antes de cambiar las rutas, definir una estructura coherente y actualizar tanto el backend como el frontend. Si se adopta `/api/v1`, mantener todas las rutas bajo ese prefijo de forma consistente.
+La ruta heredada `GET /api/programas` permanece disponible para lectura.
+`PUT /api/programas` fue retirada para evitar reemplazar todo el archivo sin
+respetar el flujo; para guardar se deben usar los endpoints de secciones.
 
 ## 10. Fases originales del proyecto
 
@@ -246,11 +248,12 @@ Entregable: estructura inicial del proyecto y prototipo sencillo de la pantalla 
 
 Entregable: página HTML funcional para realizar pruebas.
 
-### Siguientes fases de desarrollo
+### Trabajo pendiente
 
-Completar el JavaScript, conectar la API REST, persistir los datos, implementar versiones e historial, desarrollar el workflow y generar el PDF. Después, probar las reglas de permisos y autorización.
-
-Las fases posteriores deben ajustarse a la planificación académica completa si el documento original especifica entregables adicionales.
+La comparación y descarga PDF están conectadas a la API; los campos del
+formulario se guardan por sección. La creación de programas desde la interfaz
+y la autenticación real todavía requieren superficies específicas. Los roles
+del selector son solo una simulación hasta que se incorpore autenticación.
 
 ## 11. Flujo de datos
 
@@ -281,35 +284,26 @@ El sistema no debe fingir que guardó los cambios cuando la solicitud falla o cu
 
 ## 13. Próximo paso recomendado
 
-Primero, inspeccionar `main.py`, `programas.json`, `Demo.html`, `script.js`, `style.css` y `Formulario.pdf`.
-
-Después, identificar qué funciones están realmente terminadas y cuáles faltan.
-
-A continuación, implementar los endpoints de programas y versiones, conectar los formularios con la API, desarrollar el workflow, registrar el historial, agregar la comparación de versiones y terminar la generación del PDF.
-
-Trabajar por etapas, probando cada parte antes de continuar.
+El siguiente paso es incorporar autenticación real para reemplazar el selector
+de rol simulado y comparar el formulario implementado con la versión válida del
+documento institucional.
 
 **Objetivo final:** tener una aplicación funcional que cumpla los requisitos del Grupo 5 y permita administrar programas de curso con formularios por secciones, versiones, workflow docente, autorización de una única versión vigente y generación de PDF institucional.
 
-## 14. Estado verificado del proyecto y roles (2026-10-09)
+## 14. Estado verificado del proyecto y roles (2026-10-12)
 
-Se leyeron `proyecto1.md` y todos los archivos dentro de `backend/` y `frontend/`. No se ejecutó la aplicación. `backend/requirements.txt` está vacío.
-
-### Roles del prototipo
-
-- `docente` / Docente: puede guardar un borrador y enviarlo a revisión cuando hay un nombre de docente.
-- `administrador` / Administrador: puede devolver o aprobar una versión en revisión cuando se escribió su nombre, y crear una nueva versión desde una versión autorizada.
-- `decano` / Decano: puede autorizar una versión aprobada cuando se escribió su nombre.
-
-El selector de roles solo simula quién usa la pantalla; no es autenticación y no protege acciones en el servidor. En Responsables del programa se escriben los nombres del Docente, del Decano y de la persona responsable de Administración; la Facultad se captura en Información general. El rol Coordinador se quitó; Administración realiza la revisión, devolución y aprobación, mientras el Decano autoriza. El Administrador también puede crear versiones según el workflow descrito arriba.
-
-### Implementación observada
-
-- `backend/main.py` sirve los archivos de `frontend/` y expone `GET /api/programas` y `PUT /api/programas`. El PUT valida las colecciones `programas`, `versiones` e `historial`, escribe un temporal y reemplaza `programas.json`.
-- `frontend/script.js` no hace solicitudes a la API. El botón de guardar solo cambia el estado en memoria del navegador; las transiciones del workflow y el contador de versión tampoco persisten ni crean registros en JSON.
-- Devolver una versión no solicita ni registra observaciones. El botón Cancelar solo muestra una confirmación y un mensaje; no restaura valores.
-- La vista previa del PDF se construye en el navegador y `window.print()` permite imprimirla o guardarla. No se observó generación de PDF en el backend.
-- `frontend/Demo.html` contiene secciones de información general, prerrequisitos, descripción, competencias, perfil de egreso, metodología y evaluación. Aún se debe contrastar con `Formulario.pdf` para confirmar campos y secciones faltantes.
-- `frontend/estilos/style.css` define estilos propios para la interfaz, el flujo visual de roles, la vista previa/impresión y el diseño adaptable.
-
-Se quitó el rol Coordinador. Administración realiza la revisión, devolución y aprobación, y el Decano autoriza las versiones aprobadas. En Responsables del programa están los campos de nombre del Docente, del Decano y del Responsable de Administración, en ese orden; la Facultad se usa desde Información general. El programa solo se edita con el rol Docente en estado borrador o devuelto; el nombre de Administración se edita durante la revisión y antes de crear una versión; y el nombre del Decano se edita al autorizar. La vista PDF muestra esos responsables y sus firmas. No se ejecutaron pruebas ni la aplicación.
+- Los roles de prueba son `docente`, `coordinador-academico` y `decanatura`.
+- El backend valida el rol declarado, las transiciones y los campos requeridos,
+  registra las observaciones y mantiene una sola versión vigente.
+- El selector de rol sigue siendo una simulación: no hay autenticación y un
+  cliente puede falsificar el rol enviado. Se requiere autenticación real antes
+  de desplegar el sistema como una aplicación segura.
+- El frontend consume la API, permite elegir un programa, guardar secciones,
+  revisar el workflow y descargar un PDF.
+- El formulario incluye Información general, Prerrequisitos, Descripción,
+  Competencias, Perfil de egreso, Metodología, Contenidos, Bibliografía y
+  Evaluación.
+- La verificación del flujo se debe realizar ejecutando el servidor y probando
+  las acciones de cada rol.
+- La copia de trabajo de `Formulario.pdf` está eliminada/vacía; por ello falta
+  contrastar el formulario con el documento institucional original.

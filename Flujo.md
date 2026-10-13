@@ -2,15 +2,15 @@
 
 ## Inicio
 
-Al abrir `frontend/Demo.html`, el sistema inicia con:
+Al abrir la aplicación desde el servidor (`http://127.0.0.1:8000/`), el sistema
+carga el programa principal (ID 1) desde la API:
 
-- Estado `BORRADOR`.
-- Versión `1`.
 - Rol seleccionado: `Docente`.
 
-El selector de rol permite simular las acciones de Docente, Coordinador
-académico y Decanatura. No es un mecanismo de autenticación: los permisos se
-controlan en el navegador.
+El selector de rol permite probar las acciones de Docente, Coordinación
+académica y Decanatura. Los permisos del flujo se validan también en el backend;
+el selector sigue siendo una simulación y no sustituye la autenticación de
+usuarios.
 
 ## Flujo del programa
 
@@ -32,20 +32,16 @@ EN REVISIÓN
                                   |
                                   | Decanatura registra su nombre
                                   |
-                                  +-- Autorizar -----------> AUTORIZADO
+                                  +-- Autorizar -----------> VIGENTE
                                   |                           |
                                   |                           | Coordinación académica
-                                  |                           | registra su nombre
-                                  |                           | y crea una versión
+                                  |                           | crea una versión
                                   |                           v
                                   |                        BORRADOR
                                   |                        (versión siguiente)
-                                  |
-                                  +-- Enviar nuevamente ---> EN REVISIÓN
-                                      a revisión               |
-                                                                | Coordinación académica
-                                                                | vuelve a revisar
-                                                                +--> DEVUELTO o APROBADO
+
+Al autorizar una versión nueva, la que estaba vigente pasa a `REEMPLAZADO` y
+se conserva como historial.
 ```
 
 ## Acciones y permisos
@@ -54,33 +50,29 @@ EN REVISIÓN
 | --- | --- | --- |
 | Docente | `BORRADOR` o `DEVUELTO` | Editar el programa, guardar borrador y enviarlo a revisión. |
 | Coordinador académico | `EN REVISIÓN` | Registrar su nombre, devolver el programa o aprobarlo. |
-| Decanatura | `APROBADO` | Registrar su nombre, autorizar la versión o enviarla nuevamente a revisión académica. |
-| Coordinador académico | `AUTORIZADO` | Registrar su nombre y crear la siguiente versión en estado `BORRADOR`. |
+| Decanatura | `APROBADO` | Registrar su nombre y autorizar la versión. |
+| Coordinador académico | `VIGENTE` | Crear la siguiente versión en estado `BORRADOR`. |
 
 Los campos de las secciones del programa solo se pueden editar como Docente
 cuando el estado es `BORRADOR` o `DEVUELTO`.
 
-El nombre de Docencia se puede editar en esos mismos casos. El nombre de
-Coordinación académica se puede editar cuando ese rol está seleccionado y el
-estado es `EN REVISIÓN` o `AUTORIZADO`. El nombre de Decanatura se puede editar
-cuando Decanatura está seleccionada y el estado es `APROBADO`.
+El nombre de Docencia se puede editar en esos mismos casos. Los nombres de
+Coordinación académica y Decanatura se registran al devolver/aprobar y
+autorizar, respectivamente, y quedan asociados a la versión.
 
-Para aprobar o devolver el programa, Coordinación académica debe haber
-completado su nombre. Para autorizar, Decanatura debe haber completado su
-nombre. La acción de Decanatura para enviar nuevamente a revisión solo requiere
-que el estado sea `APROBADO`.
+Para enviar a revisión, el programa debe tener nombre de docente y los campos
+obligatorios de información general. Para aprobar o devolver, Coordinación
+académica debe indicar su nombre; la devolución también exige una observación.
+Para autorizar, Decanatura debe indicar su nombre.
 
 ## Guardado y versiones
 
-- «Guardar borrador» muestra una confirmación y deja el estado en `BORRADOR`.
-  No guarda los datos en un archivo ni en la API.
-- «Cancelar cambios» solicita confirmación, pero no revierte ni restaura los
-  valores anteriores.
-- Crear una nueva versión incrementa el número y la inicia en `BORRADOR`.
-- El estado y el número de versión solo viven en la página; al recargar se
-  reinician a `BORRADOR` y versión `1`.
-- La interfaz no está conectada a la API ni a `programas.json`; por eso, los
-  cambios del formulario no persisten al recargar.
+- «Guardar borrador» persiste las secciones en la API y en `programas.json`.
+- «Cancelar cambios» vuelve a cargar los últimos datos guardados del servidor.
+- Crear una versión copia la última versión vigente y la inicia en
+  `BORRADOR`.
+- El estado, el número de versión y las acciones quedan persistidos en el
+  historial.
 
 ## Vista previa e impresión
 
@@ -88,7 +80,20 @@ que el estado sea `APROBADO`.
   todas las secciones del programa, mostrando sus campos como texto.
 - La vista incluye asignatura, facultad, versión, fecha, estado, los nombres de
   Docencia, Decanatura y Coordinación académica, además de espacios de firma.
-- La leyenda indica «Documento autorizado» solo cuando el estado es
-  `AUTORIZADO`; en los demás estados indica que no tiene autorización vigente.
-- «Imprimir / Guardar PDF» abre el diálogo de impresión del navegador.
+- La leyenda indica «Documento autorizado» solo cuando el estado es `VIGENTE`;
+  en los demás estados indica que no tiene autorización vigente.
+- «Descargar PDF» obtiene el documento generado por el endpoint del backend.
 - «Volver al editor» cierra la vista previa y vuelve a mostrar el formulario.
+
+## Iniciar el servidor
+
+Desde la raíz del proyecto, crea un entorno e instala la dependencia del PDF:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r backend/requirements.txt
+.venv/bin/python backend/main.py
+```
+
+Abre `http://127.0.0.1:8000/`. Si el servidor ya estaba activo antes de una
+actualización, reinícialo para que cargue el backend nuevo.

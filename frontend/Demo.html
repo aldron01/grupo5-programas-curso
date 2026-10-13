@@ -48,7 +48,9 @@
 
             <select id="rol" class="rol">
               <option value="docente">Docente</option>
-              <option value="coordinador-academico">Coordinador académico</option>
+              <option value="coordinador-academico">
+                Coordinador académico
+              </option>
               <option value="decanatura">Decanatura</option>
             </select>
           </div>
@@ -82,9 +84,7 @@
             </div>
 
             <div class="campo">
-              <label for="nombre-coordinador">
-                Coordinador académico
-              </label>
+              <label for="nombre-coordinador"> Coordinador académico </label>
 
               <input
                 type="text"
@@ -110,6 +110,10 @@
             <a href="#perfil"> Perfil de egreso </a>
 
             <a href="#metodologia"> Metodología </a>
+
+            <a href="#contenidos"> Contenidos </a>
+
+            <a href="#bibliografia"> Bibliografía </a>
 
             <a href="#evaluacion"> Evaluación </a>
           </aside>
@@ -153,6 +157,18 @@
                   <label for="facultad"> Facultad </label>
 
                   <input type="text" id="facultad" value="Ingeniería" />
+                </div>
+
+                <div class="campo">
+                  <label for="area-formacion"> Área de formación </label>
+
+                  <input type="text" id="area-formacion" />
+                </div>
+
+                <div class="campo">
+                  <label for="pensum"> Pensum </label>
+
+                  <input type="text" id="pensum" />
                 </div>
 
                 <div class="campo">
@@ -254,7 +270,8 @@
                 <div class="campo completo">
                   <label for="descripcion-texto"> Descripción del curso </label>
 
-                  <textarea id="descripcion-texto">Curso orientado al desarrollo de aplicaciones web utilizando tecnologías modernas, APIs REST y herramientas para la construcción de sistemas web.</textarea
+                  <textarea id="descripcion-texto">
+Curso orientado al desarrollo de aplicaciones web utilizando tecnologías modernas, APIs REST y herramientas para la construcción de sistemas web.</textarea
                   >
                 </div>
               </div>
@@ -268,7 +285,8 @@
                 <div class="campo completo">
                   <label for="competencia-general"> Competencia general </label>
 
-                  <textarea id="competencia-general">Desarrolla aplicaciones web funcionales utilizando buenas prácticas de programación.</textarea
+                  <textarea id="competencia-general">
+Desarrolla aplicaciones web funcionales utilizando buenas prácticas de programación.</textarea
                   >
                 </div>
 
@@ -277,7 +295,8 @@
                     Competencias específicas
                   </label>
 
-                  <textarea id="competencias-especificas">Diseña APIs REST, utiliza bases de datos y desarrolla interfaces web.</textarea
+                  <textarea id="competencias-especificas">
+Diseña APIs REST, utiliza bases de datos y desarrolla interfaces web.</textarea
                   >
                 </div>
               </div>
@@ -315,8 +334,39 @@
                   Metodología de enseñanza
                 </label>
 
-                <textarea id="metodologia-texto">Clases prácticas, ejercicios, proyectos y actividades de desarrollo de aplicaciones web.</textarea
+                <textarea id="metodologia-texto">
+Clases prácticas, ejercicios, proyectos y actividades de desarrollo de aplicaciones web.</textarea
                 >
+              </div>
+            </div>
+
+            <!-- CONTENIDOS -->
+            <div id="contenidos" class="seccion">
+              <h3>Contenidos</h3>
+
+              <div class="formulario">
+                <div class="campo completo">
+                  <label for="contenidos-texto">
+                    Unidades y temas (uno por línea)
+                  </label>
+
+                  <textarea id="contenidos-texto"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- BIBLIOGRAFÍA -->
+            <div id="bibliografia" class="seccion">
+              <h3>Bibliografía</h3>
+
+              <div class="formulario">
+                <div class="campo completo">
+                  <label for="bibliografia-texto">
+                    Referencias bibliográficas (una por línea)
+                  </label>
+
+                  <textarea id="bibliografia-texto"></textarea>
+                </div>
               </div>
             </div>
 
@@ -344,7 +394,6 @@
                 </div>
               </div>
             </div>
-
           </section>
         </div>
 
@@ -360,14 +409,12 @@
           <button type="button" id="autorizar">Autorizar versión</button>
           <button type="button" id="vista-previa-pdf">Vista previa PDF</button>
           <button type="button" id="imprimir-pdf" hidden>
-            Imprimir / Guardar PDF
+            Descargar PDF
           </button>
           <button type="button" id="cerrar-vista-previa" hidden>
             Volver al editor
           </button>
-          <button type="button" id="cancelar-cambios">
-            Cancelar cambios
-          </button>
+          <button type="button" id="cancelar-cambios">Cancelar cambios</button>
         </div>
       </main>
     </div>
