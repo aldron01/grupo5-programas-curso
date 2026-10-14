@@ -9,17 +9,17 @@
       "departamento": "Ingeniería",
       "facultad": "Ingeniería",
       "ciclo_academico": "Segundo ciclo",
-      "anio": 2026,
+      "anio": "2026",
       "nivel_academico": "Licenciatura",
       "area_formacion": "Diseño de Ingeniería",
       "pensum": "2024",
       "modalidad": "Presencial",
-      "creditos": 4,
-      "horas_semanales": 4,
+      "creditos": "4",
+      "horas_semanales": "4",
       "sede": "Campus Central",
-      "profesor": "Docente de prueba",
-      "version_actual": 2,
-      "estado": "vigente"
+      "profesor": "alfredo armando Diaz Perez",
+      "version_actual": 3,
+      "estado": "borrador"
     }
   ],
   "versiones": [
@@ -27,19 +27,19 @@
       "id": 1,
       "programa_id": 1,
       "numero_version": 1,
-      "estado": "vigente",
+      "estado": "reemplazado",
       "secciones": {
         "responsables": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
-            "docente": "Docente de prueba",
-            "decanatura": "",
-            "coordinador": ""
+            "docente": "alfredo armando Diaz Perez",
+            "decanatura": "alce noda ramos solorzano",
+            "coordinador": "alfonso pedro nidaz Diaz"
           }
         },
         "general": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "codigo": "PW-001",
@@ -59,7 +59,7 @@
           }
         },
         "prerrequisitos": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "asignaturas": [
@@ -72,14 +72,14 @@
           }
         },
         "descripcion": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "competencias": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "general": "",
@@ -87,7 +87,7 @@
           }
         },
         "perfil": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "codigo": "",
@@ -95,28 +95,28 @@
           }
         },
         "metodologia": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "contenidos": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "bibliografia": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "evaluacion": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "parcial": "",
@@ -126,25 +126,25 @@
         }
       },
       "observaciones": [],
-      "actualizado_en": "2026-10-12T19:05:08-06:00"
+      "actualizado_en": "2026-10-13T19:20:18-06:00"
     },
     {
       "id": 2,
       "programa_id": 1,
       "numero_version": 2,
-      "estado": "vigente",
+      "estado": "reemplazado",
       "secciones": {
         "responsables": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
-            "docente": "Docente de prueba",
-            "decanatura": "",
-            "coordinador": ""
+            "docente": "alfredo armando Diaz Perez",
+            "decanatura": "hector peres",
+            "coordinador": "alfredo dias"
           }
         },
         "general": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "codigo": "PW-001",
@@ -164,7 +164,7 @@
           }
         },
         "prerrequisitos": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "asignaturas": [
@@ -177,14 +177,14 @@
           }
         },
         "descripcion": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "competencias": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "general": "",
@@ -192,7 +192,7 @@
           }
         },
         "perfil": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "codigo": "",
@@ -200,28 +200,28 @@
           }
         },
         "metodologia": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "contenidos": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "bibliografia": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "evaluacion": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "parcial": "",
@@ -231,26 +231,26 @@
         }
       },
       "observaciones": [],
-      "creado_en": "2026-10-12T19:06:39-06:00",
-      "actualizado_en": "2026-10-12T19:22:41-06:00"
+      "creado_en": "2026-10-13T19:20:40-06:00",
+      "actualizado_en": "2026-10-13T20:12:52-06:00"
     },
     {
       "id": 3,
       "programa_id": 1,
       "numero_version": 3,
-      "estado": "borrador",
+      "estado": "vigente",
       "secciones": {
         "responsables": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
-            "docente": "Docente de prueba",
-            "decanatura": "",
-            "coordinador": ""
+            "docente": "alfredo armando Diaz Perez",
+            "decanatura": "luiz",
+            "coordinador": "aldron"
           }
         },
         "general": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "codigo": "PW-001",
@@ -270,7 +270,7 @@
           }
         },
         "prerrequisitos": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "asignaturas": [
@@ -283,14 +283,14 @@
           }
         },
         "descripcion": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "competencias": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "general": "",
@@ -298,7 +298,7 @@
           }
         },
         "perfil": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "codigo": "",
@@ -306,28 +306,28 @@
           }
         },
         "metodologia": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "contenidos": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "bibliografia": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "texto": ""
           }
         },
         "evaluacion": {
-          "usuario": "Docente de prueba",
+          "usuario": "alfredo armando Diaz Perez",
           "rol": "docente",
           "contenido": {
             "parcial": "",
@@ -337,394 +337,452 @@
         }
       },
       "observaciones": [],
-      "creado_en": "2026-10-12T19:22:59-06:00",
-      "actualizado_en": "2026-10-12T19:22:59-06:00"
+      "creado_en": "2026-10-13T20:13:12-06:00",
+      "actualizado_en": "2026-10-13T20:26:17-06:00"
+    },
+    {
+      "id": 4,
+      "programa_id": 1,
+      "numero_version": 4,
+      "estado": "borrador",
+      "secciones": {
+        "responsables": {
+          "usuario": "alfredo armando Diaz Perez",
+          "rol": "docente",
+          "contenido": {
+            "docente": "alfredo armando Diaz Perez",
+            "decanatura": "",
+            "coordinador": ""
+          }
+        },
+        "general": {
+          "usuario": "alfredo armando Diaz Perez",
+          "rol": "docente",
+          "contenido": {
+            "codigo": "PW-001",
+            "asignatura": "Programación Web",
+            "programa": "Ingeniería en Sistemas",
+            "departamento": "Ingeniería",
+            "facultad": "Ingeniería",
+            "area_formacion": "Diseño de Ingeniería",
+            "pensum": "2024",
+            "ciclo": "Segundo ciclo",
+            "anio": "2026",
+            "nivel": "Licenciatura",
+            "modalidad": "Presencial",
+            "creditos": "4",
+            "horas": "4",
+            "sede": "Campus Central"
+          }
+        },
+        "prerrequisitos": {
+          "usuario": "alfredo armando Diaz Perez",
+          "rol": "docente",
+          "contenido": {
+            "asignaturas": [
+              {
+                "asignatura": "Programación II",
+                "codigo": "PRG-002",
+                "orden": "1"
+              }
+            ]
+          }
+        },
+        "descripcion": {
+          "usuario": "alfredo armando Diaz Perez",
+          "rol": "docente",
+          "contenido": {
+            "texto": ""
+          }
+        },
+        "competencias": {
+          "usuario": "alfredo armando Diaz Perez",
+          "rol": "docente",
+          "contenido": {
+            "general": "",
+            "especificas": ""
+          }
+        },
+        "perfil": {
+          "usuario": "alfredo armando Diaz Perez",
+          "rol": "docente",
+          "contenido": {
+            "codigo": "",
+            "contribucion": ""
+          }
+        },
+        "metodologia": {
+          "usuario": "alfredo armando Diaz Perez",
+          "rol": "docente",
+          "contenido": {
+            "texto": ""
+          }
+        },
+        "contenidos": {
+          "usuario": "alfredo armando Diaz Perez",
+          "rol": "docente",
+          "contenido": {
+            "texto": ""
+          }
+        },
+        "bibliografia": {
+          "usuario": "alfredo armando Diaz Perez",
+          "rol": "docente",
+          "contenido": {
+            "texto": ""
+          }
+        },
+        "evaluacion": {
+          "usuario": "alfredo armando Diaz Perez",
+          "rol": "docente",
+          "contenido": {
+            "parcial": "",
+            "final": "",
+            "proyecto": ""
+          }
+        }
+      },
+      "observaciones": [],
+      "creado_en": "2026-10-13T20:26:33-06:00",
+      "actualizado_en": "2026-10-13T20:26:33-06:00"
     }
   ],
   "historial": [
     {
-      "fecha": "2026-10-12T19:03:50-06:00",
+      "fecha": "2026-10-13T19:19:15-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'responsables'.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:03:50-06:00",
+      "fecha": "2026-10-13T19:19:15-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'general'.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:03:50-06:00",
+      "fecha": "2026-10-13T19:19:15-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'prerrequisitos'.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:03:50-06:00",
+      "fecha": "2026-10-13T19:19:15-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'descripcion'.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:03:50-06:00",
+      "fecha": "2026-10-13T19:19:15-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'competencias'.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:03:50-06:00",
+      "fecha": "2026-10-13T19:19:15-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'perfil'.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:03:50-06:00",
+      "fecha": "2026-10-13T19:19:15-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'metodologia'.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:03:50-06:00",
+      "fecha": "2026-10-13T19:19:15-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'contenidos'.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:03:50-06:00",
+      "fecha": "2026-10-13T19:19:15-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'bibliografia'.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:03:50-06:00",
+      "fecha": "2026-10-13T19:19:15-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'evaluacion'.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:03:59-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'responsables'.",
-      "programa_id": 1,
-      "version_id": 1
-    },
-    {
-      "fecha": "2026-10-12T19:03:59-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'general'.",
-      "programa_id": 1,
-      "version_id": 1
-    },
-    {
-      "fecha": "2026-10-12T19:03:59-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'prerrequisitos'.",
-      "programa_id": 1,
-      "version_id": 1
-    },
-    {
-      "fecha": "2026-10-12T19:03:59-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'descripcion'.",
-      "programa_id": 1,
-      "version_id": 1
-    },
-    {
-      "fecha": "2026-10-12T19:03:59-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'competencias'.",
-      "programa_id": 1,
-      "version_id": 1
-    },
-    {
-      "fecha": "2026-10-12T19:03:59-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'perfil'.",
-      "programa_id": 1,
-      "version_id": 1
-    },
-    {
-      "fecha": "2026-10-12T19:03:59-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'metodologia'.",
-      "programa_id": 1,
-      "version_id": 1
-    },
-    {
-      "fecha": "2026-10-12T19:03:59-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'contenidos'.",
-      "programa_id": 1,
-      "version_id": 1
-    },
-    {
-      "fecha": "2026-10-12T19:03:59-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'bibliografia'.",
-      "programa_id": 1,
-      "version_id": 1
-    },
-    {
-      "fecha": "2026-10-12T19:03:59-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'evaluacion'.",
-      "programa_id": 1,
-      "version_id": 1
-    },
-    {
-      "fecha": "2026-10-12T19:03:59-06:00",
+      "fecha": "2026-10-13T19:19:15-06:00",
       "accion": "Submit",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Estado actualizado a en_revision.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:04:51-06:00",
+      "fecha": "2026-10-13T19:19:45-06:00",
       "accion": "Approve",
-      "usuario": "alfredo dias",
+      "usuario": "alfonso pedro nidaz Diaz",
       "descripcion": "Estado actualizado a aprobado.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:05:08-06:00",
+      "fecha": "2026-10-13T19:20:18-06:00",
       "accion": "Authorize",
-      "usuario": "pedro",
+      "usuario": "alce noda ramos solorzano",
       "descripcion": "Estado actualizado a vigente.",
       "programa_id": 1,
       "version_id": 1
     },
     {
-      "fecha": "2026-10-12T19:06:39-06:00",
+      "fecha": "2026-10-13T19:20:40-06:00",
       "accion": "Creación de versión",
-      "usuario": "gerardo",
+      "usuario": "alfonso pedro nidaz Diaz",
       "descripcion": "Se creó la versión 2.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:10:28-06:00",
+      "fecha": "2026-10-13T20:12:19-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'responsables'.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:10:28-06:00",
+      "fecha": "2026-10-13T20:12:19-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'general'.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:10:28-06:00",
+      "fecha": "2026-10-13T20:12:19-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'prerrequisitos'.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:10:28-06:00",
+      "fecha": "2026-10-13T20:12:19-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'descripcion'.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:10:28-06:00",
+      "fecha": "2026-10-13T20:12:19-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'competencias'.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:10:28-06:00",
+      "fecha": "2026-10-13T20:12:20-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'perfil'.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:10:28-06:00",
+      "fecha": "2026-10-13T20:12:20-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'metodologia'.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:10:28-06:00",
+      "fecha": "2026-10-13T20:12:20-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'contenidos'.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:10:28-06:00",
+      "fecha": "2026-10-13T20:12:20-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'bibliografia'.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:10:28-06:00",
+      "fecha": "2026-10-13T20:12:20-06:00",
       "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Se guardó la sección 'evaluacion'.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:21:31-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'responsables'.",
-      "programa_id": 1,
-      "version_id": 2
-    },
-    {
-      "fecha": "2026-10-12T19:21:31-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'general'.",
-      "programa_id": 1,
-      "version_id": 2
-    },
-    {
-      "fecha": "2026-10-12T19:21:31-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'prerrequisitos'.",
-      "programa_id": 1,
-      "version_id": 2
-    },
-    {
-      "fecha": "2026-10-12T19:21:31-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'descripcion'.",
-      "programa_id": 1,
-      "version_id": 2
-    },
-    {
-      "fecha": "2026-10-12T19:21:31-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'competencias'.",
-      "programa_id": 1,
-      "version_id": 2
-    },
-    {
-      "fecha": "2026-10-12T19:21:31-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'perfil'.",
-      "programa_id": 1,
-      "version_id": 2
-    },
-    {
-      "fecha": "2026-10-12T19:21:31-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'metodologia'.",
-      "programa_id": 1,
-      "version_id": 2
-    },
-    {
-      "fecha": "2026-10-12T19:21:31-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'contenidos'.",
-      "programa_id": 1,
-      "version_id": 2
-    },
-    {
-      "fecha": "2026-10-12T19:21:31-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'bibliografia'.",
-      "programa_id": 1,
-      "version_id": 2
-    },
-    {
-      "fecha": "2026-10-12T19:21:31-06:00",
-      "accion": "Guardado de sección",
-      "usuario": "Docente de prueba",
-      "descripcion": "Se guardó la sección 'evaluacion'.",
-      "programa_id": 1,
-      "version_id": 2
-    },
-    {
-      "fecha": "2026-10-12T19:21:31-06:00",
+      "fecha": "2026-10-13T20:12:20-06:00",
       "accion": "Submit",
-      "usuario": "Docente de prueba",
+      "usuario": "alfredo armando Diaz Perez",
       "descripcion": "Estado actualizado a en_revision.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:22:11-06:00",
+      "fecha": "2026-10-13T20:12:35-06:00",
       "accion": "Approve",
-      "usuario": "luiz",
+      "usuario": "alfredo dias",
       "descripcion": "Estado actualizado a aprobado.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:22:41-06:00",
+      "fecha": "2026-10-13T20:12:52-06:00",
       "accion": "Authorize",
-      "usuario": "pedro",
+      "usuario": "hector peres",
       "descripcion": "Estado actualizado a vigente.",
       "programa_id": 1,
       "version_id": 2
     },
     {
-      "fecha": "2026-10-12T19:22:59-06:00",
+      "fecha": "2026-10-13T20:13:12-06:00",
       "accion": "Creación de versión",
-      "usuario": "marlon",
+      "usuario": "alfredo dias",
       "descripcion": "Se creó la versión 3.",
       "programa_id": 1,
       "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:41-06:00",
+      "accion": "Guardado de sección",
+      "usuario": "alfredo armando Diaz Perez",
+      "descripcion": "Se guardó la sección 'responsables'.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:41-06:00",
+      "accion": "Guardado de sección",
+      "usuario": "alfredo armando Diaz Perez",
+      "descripcion": "Se guardó la sección 'general'.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:41-06:00",
+      "accion": "Guardado de sección",
+      "usuario": "alfredo armando Diaz Perez",
+      "descripcion": "Se guardó la sección 'prerrequisitos'.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:41-06:00",
+      "accion": "Guardado de sección",
+      "usuario": "alfredo armando Diaz Perez",
+      "descripcion": "Se guardó la sección 'descripcion'.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:41-06:00",
+      "accion": "Guardado de sección",
+      "usuario": "alfredo armando Diaz Perez",
+      "descripcion": "Se guardó la sección 'competencias'.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:41-06:00",
+      "accion": "Guardado de sección",
+      "usuario": "alfredo armando Diaz Perez",
+      "descripcion": "Se guardó la sección 'perfil'.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:41-06:00",
+      "accion": "Guardado de sección",
+      "usuario": "alfredo armando Diaz Perez",
+      "descripcion": "Se guardó la sección 'metodologia'.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:41-06:00",
+      "accion": "Guardado de sección",
+      "usuario": "alfredo armando Diaz Perez",
+      "descripcion": "Se guardó la sección 'contenidos'.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:41-06:00",
+      "accion": "Guardado de sección",
+      "usuario": "alfredo armando Diaz Perez",
+      "descripcion": "Se guardó la sección 'bibliografia'.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:41-06:00",
+      "accion": "Guardado de sección",
+      "usuario": "alfredo armando Diaz Perez",
+      "descripcion": "Se guardó la sección 'evaluacion'.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:41-06:00",
+      "accion": "Submit",
+      "usuario": "alfredo armando Diaz Perez",
+      "descripcion": "Estado actualizado a en_revision.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:25:59-06:00",
+      "accion": "Approve",
+      "usuario": "aldron",
+      "descripcion": "Estado actualizado a aprobado.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:26:17-06:00",
+      "accion": "Authorize",
+      "usuario": "luiz",
+      "descripcion": "Estado actualizado a vigente.",
+      "programa_id": 1,
+      "version_id": 3
+    },
+    {
+      "fecha": "2026-10-13T20:26:33-06:00",
+      "accion": "Creación de versión",
+      "usuario": "aldron",
+      "descripcion": "Se creó la versión 4.",
+      "programa_id": 1,
+      "version_id": 4
     }
   ]
 }
