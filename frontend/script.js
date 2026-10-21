@@ -1,5 +1,6 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // La API y el ID activo se centralizan para construir todas las solicitudes.
   const API = "http://127.0.0.1:8000";
   const programaId = 1;
 
@@ -54,6 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     reemplazado: "REEMPLAZADO",
   };
 
+  // El nombre reportado depende del rol que ejecuta la acción actual.
   function usuarioActual() {
     if (rol.value === "docente") {
       return docente.value.trim();
@@ -70,6 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     estadoGuardado.textContent = mensaje;
   }
 
+  // Unifica el manejo de respuestas JSON y errores para todas las rutas.
   async function solicitar(ruta, opciones = {}) {
     const respuesta = await fetch(`${API}${ruta}`, {
       ...opciones,
@@ -169,6 +172,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
   }
 
+  // Convierte los campos visibles del formulario al formato que espera la API.
   function capturarSecciones() {
     return {
       responsables: {
@@ -215,6 +219,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
   }
 
+  // Rellena el formulario con la versión y usa el programa como respaldo inicial.
   function cargarSecciones(datosVersion) {
     const general = contenidoDe(datosVersion, "general");
     const responsables = contenidoDe(datosVersion, "responsables");
@@ -308,6 +313,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // Selecciona primero una versión editable; si no existe, muestra la vigente más reciente.
   async function cargarPrograma(id) {
     const resultado = await solicitar(`/course-programs/${id}`);
 
@@ -345,6 +351,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // Sincroniza la versión seleccionada y refresca tanto el formulario como sus permisos.
   async function cargarVersion(id) {
     const datos = await solicitar(`/program-versions/${id}`);
 
@@ -357,6 +364,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     actualizarEstado();
   }
 
+  // Persiste cada sección por separado para no reemplazar datos de otras secciones.
   async function guardarEnServidor() {
     if (!versionId) {
       throw new Error("No hay una versión seleccionada para guardar.");
@@ -383,6 +391,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     mostrarMensaje("Borrador guardado en el servidor.");
   }
 
+  // Envía una transición del flujo y recarga el estado confirmado por el servidor.
   async function ejecutarAccion(accion, mensaje, datos = {}) {
     if (!versionId) {
       throw new Error("No hay una versión seleccionada.");
@@ -435,6 +444,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  // Antes de enviar, guarda los campos actuales para que la revisión use lo más reciente.
   enviarRevision.addEventListener("click", async () => {
     if (rol.value !== "docente") {
       alert("Solo el docente puede enviar el programa a revisión.");
@@ -576,6 +586,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  // Evita acciones simultáneas y mantiene coherentes los mensajes y controles de carga.
   async function conCarga(funcion) {
     if (guardando) return;
 
@@ -615,6 +626,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     actualizarEdicionResponsables();
   }
 
+  // El rol y el estado determinan qué datos puede modificar cada responsable.
   function actualizarEdicionResponsables() {
     const puedeEditar =
       rol.value === "docente" &&
@@ -643,6 +655,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
   }
 
+  // Solo se muestran los botones válidos para la combinación actual de rol y estado.
   function actualizarInterfaz() {
     const botones = [
       guardar,
@@ -707,6 +720,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return elemento;
   }
 
+  // La vista previa se construye con copias para no alterar el formulario original.
   function construirDocumentoPdf() {
     documentoPdf.replaceChildren();
 
@@ -753,6 +767,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         etiqueta.removeAttribute("for"),
       );
 
+      // Reemplaza controles por texto y quita IDs duplicados en el documento clonado.
       copia.querySelectorAll("input, textarea, select").forEach((control) => {
         const dato =
           control instanceof HTMLSelectElement
@@ -812,6 +827,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     mostrarMensaje("Vista previa lista para imprimir.");
   });
 
+  // Descarga el PDF del backend y libera la URL temporal después de usarla.
   imprimirPdf.addEventListener("click", () =>
     conCarga(async () => {
       const respuesta = await fetch(
