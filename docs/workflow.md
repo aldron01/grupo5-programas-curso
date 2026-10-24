@@ -1,43 +1,32 @@
-# Flujo del sistema
+# Flujo del Sistema
 
-## Componentes
+Este documento describe el proceso de gestión de los programas de curso, desde su creación hasta la emisión del documento oficial.
 
-- `frontend/` contiene la interfaz del programa de curso.
-- `backend/app.py` integra FastAPI, los routers disponibles y el frontend.
-- `grupos/grupo-5-programas-pdf/g5_programas/` implementa las rutas de G5,
-  autenticación delegada a G2 y persistencia en el esquema MySQL de G1.
-- `backend/pdf_service.py` genera el documento institucional.
+## Componentes del Flujo
+- **Frontend**: Interfaz donde el usuario gestiona el contenido del programa.
+- **Backend (`app.py`)**: Actúa como el núcleo que integra los routers de los diferentes grupos, sirve la interfaz web y estandariza los errores de la API.
+- **Módulo G5**: Implementa las reglas de negocio, la autenticación delegada a G2 y la persistencia en MySQL.
+- **Servicio de PDF**: Genera el documento institucional en formato PDF utilizando la librería `ReportLab`.
 
-## Inicio
+## Ciclo de Vida de una Versión
 
-La API requiere una base MySQL inicializada con el esquema y las semillas de G1.
-Copia `.env.example` a `.env`, configura `DATABASE_URL` con tus credenciales y
-ejecuta desde la raíz:
+El sistema controla el estado de cada versión para asegurar que solo los documentos revisados sean oficiales:
 
-```bash
-cp .env.example .env
-pip install -r requirements.txt
-uvicorn main:app --reload --env-file .env
-```
+`draft` $\rightarrow$ `submitted` $\rightarrow$ `under_review` $\rightarrow$ `approved` $\rightarrow$ `authorized`
 
-La documentación OpenAPI está en `/api/v1/docs`. Las rutas de G5 usan el
-prefijo `/api/v1`; requieren el principal autenticado que instala G2.
+### Reglas de Transición
+- **Edición**: Solo es posible editar versiones en estado `draft` (borrador) o `returned` (devuelta para correcciones).
+- **Revisión**: Una versión `submitted` pasa a `under_review` cuando un revisor comienza la evaluación.
+- **Devolución**: Si hay observaciones, la versión regresa al estado `returned`.
+- **Autorización**: Es el estado final. La base de datos protege estas versiones para que sean inmutables y garantiza que solo haya una versión vigente por período.
 
-## Estados de una versión
+## Generación y Descarga de PDF
 
-```text
-draft -> submitted -> under_review -> approved -> authorized
-                         |                         |
-                         v                         v
-                      returned                 superseded
-                         |
-                         +------> submitted
-```
+El PDF es la representación oficial del programa y sigue estas condiciones:
 
-Solo `draft` y `returned` son editables. `POST /program-versions/{id}/review`
-toma una versión enviada y la cambia de `submitted` a `under_review`.
-La autorización la procesa `sp_autorizar_version` en MySQL; la base protege
-la inmutabilidad de versiones autorizadas y la unicidad de la versión vigente.
-
-El PDF se descarga desde `/api/v1/program-versions/{id}/pdf` y solo se genera
-para versiones `authorized` o `superseded`.
+1. **Restricción**: Solo se generan PDFs para versiones en estado `authorized` o `superseded` (reemplazadas).
+2. **Proceso**: 
+   - El sistema recupera los datos y las secciones del programa.
+   - Se construye el documento en memoria para evitar archivos temporales en el servidor.
+   - Se calcula y guarda un **digest** (hash) del archivo para auditoría.
+3. **Descarga**: El archivo se entrega directamente al usuario mediante el endpoint `/api/v1/program-versions/{id}/pdf`.
