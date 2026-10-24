@@ -4,12 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Programa de Curso</title>
-    <link rel="stylesheet" href="estilos/style.css" />
-    <script src="script.js" defer></script>
+    <!-- ESTILOS Y LÓGICA DE LA INTERFAZ -->
+    <link rel="stylesheet" href="estilos/udv.css?v=pdf-layout-2" />
+    <link rel="stylesheet" href="estilos/style.css?v=pdf-layout-2" />
+    <script src="script.js?v=pdf-layout-2" defer></script>
   </head>
 
   <body>
-    <div class="contenedor">
+    <div class="container">
       <!-- MENÚ LATERAL -->
       <aside class="menu">
         <h1>Proyecto</h1>
@@ -19,34 +21,34 @@
           <a href="#">Resumen</a>
           <a href="#">Inbox</a>
           <a href="#">Crear tarea</a>
-          <a href="#" class="activo">Programa de curso</a>
+          <a href="#" class="active">Programa de curso</a>
           <a href="#">API REST</a>
         </nav>
       </aside>
 
       <!-- CONTENIDO PRINCIPAL -->
-      <main class="contenido">
+      <main class="content">
         <!-- ENCABEZADO -->
-        <header class="encabezado">
-          <div class="encabezado-titulos">
+        <header class="header">
+          <div class="header-titles">
             <h2>Programa del curso</h2>
 
-            <div class="titulo-estado">
-              <span id="estado-programa" class="udv-badge badge-draft">
+            <div class="status-title">
+              <span id="program-status" class="udv-badge badge-draft">
                 BORRADOR
               </span>
 
-              <span id="numero-version"> Versión 1 </span>
+              <span id="version-number"> Versión 1 </span>
             </div>
 
-            <p id="estado-guardado">Cambios guardados localmente</p>
+            <p id="save-status">Cambios guardados localmente</p>
           </div>
 
           <!-- ROL ACTUAL -->
-          <div class="selector-rol">
-            <label for="rol">Rol actual</label>
+          <div class="role-selector">
+            <label for="role">Rol actual</label>
 
-            <select id="rol" class="rol">
+            <select id="role" class="role">
               <option value="docente">Docente</option>
               <option value="coordinador-academico">
                 Coordinador académico
@@ -56,39 +58,40 @@
           </div>
         </header>
 
-        <article id="documento-pdf" class="documento-pdf" hidden></article>
+        <!-- VISTA PREVIA DEL DOCUMENTO QUE SE IMPRIME O GUARDA COMO PDF -->
+        <article id="pdf-document" class="pdf-document" hidden></article>
 
         <!-- RESPONSABLES -->
         <section class="panel">
           <h3>Responsables del programa</h3>
 
-          <div class="formulario">
-            <div class="campo">
-              <label for="docente"> Docente </label>
+          <div class="form">
+            <div class="field">
+              <label for="instructor"> Docente </label>
 
               <input
                 type="text"
-                id="docente"
+                id="instructor"
                 placeholder="Escriba el nombre del docente"
               />
             </div>
 
-            <div class="campo">
-              <label for="nombre-decanatura"> Decanatura </label>
+            <div class="field">
+              <label for="dean-name"> Decanatura </label>
 
               <input
                 type="text"
-                id="nombre-decanatura"
+                id="dean-name"
                 placeholder="Escriba el nombre de la decanatura"
               />
             </div>
 
-            <div class="campo">
-              <label for="nombre-coordinador"> Coordinador académico </label>
+            <div class="field">
+              <label for="coordinator-name"> Coordinador académico </label>
 
               <input
                 type="text"
-                id="nombre-coordinador"
+                id="coordinator-name"
                 placeholder="Escriba el nombre del coordinador académico"
               />
             </div>
@@ -96,97 +99,97 @@
         </section>
 
         <!-- ÁREA DEL PROGRAMA -->
-        <div class="area-trabajo">
+        <div class="workspace">
           <!-- NAVEGACIÓN DE SECCIONES -->
-          <aside class="nav-secciones">
-            <a href="#general" class="activa"> Información general </a>
+          <aside class="section-nav">
+            <a href="#general" class="active"> Información general </a>
 
-            <a href="#prerrequisitos"> Prerrequisitos </a>
+            <a href="#prerequisites"> Prerrequisitos </a>
 
-            <a href="#descripcion"> Descripción </a>
+            <a href="#description"> Descripción </a>
 
-            <a href="#competencias"> Competencias </a>
+            <a href="#competencies"> Competencias </a>
 
-            <a href="#perfil"> Perfil de egreso </a>
+            <a href="#profile"> Perfil de egreso </a>
 
-            <a href="#metodologia"> Metodología </a>
+            <a href="#methodology"> Metodología </a>
 
-            <a href="#contenidos"> Contenidos </a>
+            <a href="#contents"> Contenidos </a>
 
-            <a href="#bibliografia"> Bibliografía </a>
+            <a href="#bibliography"> Bibliografía </a>
 
-            <a href="#evaluacion"> Evaluación </a>
+            <a href="#evaluation"> Evaluación </a>
           </aside>
 
           <!-- PANEL -->
           <section class="panel">
             <!-- INFORMACIÓN GENERAL -->
-            <div id="general" class="seccion activa">
+            <div id="general" class="section active">
               <h3>Información general</h3>
 
-              <div class="formulario">
-                <div class="campo">
-                  <label for="codigo"> Código </label>
+              <div class="form">
+                <div class="field">
+                  <label for="course-code"> Código </label>
 
-                  <input type="text" id="codigo" value="PW-001" />
+                  <input type="text" id="course-code" value="PW-001" />
                 </div>
 
-                <div class="campo">
-                  <label for="asignatura"> Asignatura </label>
+                <div class="field">
+                  <label for="course"> Asignatura </label>
 
-                  <input type="text" id="asignatura" value="Programación Web" />
+                  <input type="text" id="course" value="Programación Web" />
                 </div>
 
-                <div class="campo">
-                  <label for="programa"> Programa </label>
+                <div class="field">
+                  <label for="program-name"> Programa </label>
 
                   <input
                     type="text"
-                    id="programa"
+                    id="program-name"
                     value="Ingeniería en Sistemas"
                   />
                 </div>
 
-                <div class="campo">
-                  <label for="departamento"> Departamento </label>
+                <div class="field">
+                  <label for="department"> Departamento </label>
 
-                  <input type="text" id="departamento" value="Tecnología" />
+                  <input type="text" id="department" value="Tecnología" />
                 </div>
 
-                <div class="campo">
-                  <label for="facultad"> Facultad </label>
+                <div class="field">
+                  <label for="faculty"> Facultad </label>
 
-                  <input type="text" id="facultad" value="Ingeniería" />
+                  <input type="text" id="faculty" value="Ingeniería" />
                 </div>
 
-                <div class="campo">
-                  <label for="area-formacion"> Área de formación </label>
+                <div class="field">
+                  <label for="training-area"> Área de formación </label>
 
-                  <input type="text" id="area-formacion" />
+                  <input type="text" id="training-area" />
                 </div>
 
-                <div class="campo">
-                  <label for="pensum"> Pensum </label>
+                <div class="field">
+                  <label for="curriculum"> Pensum </label>
 
-                  <input type="text" id="pensum" />
+                  <input type="text" id="curriculum" />
                 </div>
 
-                <div class="campo">
-                  <label for="ciclo"> Ciclo </label>
+                <div class="field">
+                  <label for="term"> Ciclo </label>
 
-                  <input type="text" id="ciclo" value="Segundo ciclo" />
+                  <input type="text" id="term" value="Segundo ciclo" />
                 </div>
 
-                <div class="campo">
-                  <label for="anio"> Año </label>
+                <div class="field">
+                  <label for="year"> Año </label>
 
-                  <input type="number" id="anio" value="2026" />
+                  <input type="number" id="year" value="2026" />
                 </div>
 
-                <div class="campo">
-                  <label for="nivel"> Nivel </label>
+                <div class="field">
+                  <label for="level"> Nivel </label>
 
-                  <select id="nivel">
+                  <select id="level">
                     <option>Licenciatura</option>
 
                     <option>Técnico</option>
@@ -195,10 +198,10 @@
                   </select>
                 </div>
 
-                <div class="campo">
-                  <label for="modalidad"> Modalidad </label>
+                <div class="field">
+                  <label for="modality"> Modalidad </label>
 
-                  <select id="modalidad">
+                  <select id="modality">
                     <option>Presencial</option>
 
                     <option>Virtual</option>
@@ -207,33 +210,33 @@
                   </select>
                 </div>
 
-                <div class="campo">
-                  <label for="creditos"> Créditos </label>
+                <div class="field">
+                  <label for="credits"> Créditos </label>
 
-                  <input type="number" id="creditos" value="4" />
+                  <input type="number" id="credits" value="4" />
                 </div>
 
-                <div class="campo">
-                  <label for="horas"> Horas </label>
+                <div class="field">
+                  <label for="hours"> Horas </label>
 
-                  <input type="number" id="horas" value="64" />
+                  <input type="number" id="hours" value="64" />
                 </div>
 
-                <div class="campo">
-                  <label for="sede"> Sede </label>
+                <div class="field">
+                  <label for="campus"> Sede </label>
 
-                  <input type="text" id="sede" value="Campus Central" />
+                  <input type="text" id="campus" value="Campus Central" />
                 </div>
               </div>
             </div>
 
             <!-- PRERREQUISITOS -->
-            <div id="prerrequisitos" class="seccion">
+            <div id="prerequisites" class="section">
               <h3>Prerrequisitos</h3>
 
               <p>Asignaturas necesarias antes de cursar Programación Web.</p>
 
-              <div class="tabla-contenedor">
+              <div class="table-container">
                 <table>
                   <thead>
                     <tr>
@@ -263,14 +266,14 @@
             </div>
 
             <!-- DESCRIPCIÓN -->
-            <div id="descripcion" class="seccion">
+            <div id="description" class="section">
               <h3>Descripción</h3>
 
-              <div class="formulario">
-                <div class="campo completo">
-                  <label for="descripcion-texto"> Descripción del curso </label>
+              <div class="form">
+                <div class="field full">
+                  <label for="description-text"> Descripción del curso </label>
 
-                  <textarea id="descripcion-texto">
+                  <textarea id="description-text">
 Curso orientado al desarrollo de aplicaciones web utilizando tecnologías modernas, APIs REST y herramientas para la construcción de sistemas web.</textarea
                   >
                 </div>
@@ -278,24 +281,24 @@ Curso orientado al desarrollo de aplicaciones web utilizando tecnologías modern
             </div>
 
             <!-- COMPETENCIAS -->
-            <div id="competencias" class="seccion">
+            <div id="competencies" class="section">
               <h3>Competencias</h3>
 
-              <div class="formulario">
-                <div class="campo completo">
-                  <label for="competencia-general"> Competencia general </label>
+              <div class="form">
+                <div class="field full">
+                  <label for="general-competency"> Competencia general </label>
 
-                  <textarea id="competencia-general">
+                  <textarea id="general-competency">
 Desarrolla aplicaciones web funcionales utilizando buenas prácticas de programación.</textarea
                   >
                 </div>
 
-                <div class="campo completo">
-                  <label for="competencias-especificas">
+                <div class="field full">
+                  <label for="specific-competencies">
                     Competencias específicas
                   </label>
 
-                  <textarea id="competencias-especificas">
+                  <textarea id="specific-competencies">
 Diseña APIs REST, utiliza bases de datos y desarrolla interfaces web.</textarea
                   >
                 </div>
@@ -303,22 +306,22 @@ Diseña APIs REST, utiliza bases de datos y desarrolla interfaces web.</textarea
             </div>
 
             <!-- PERFIL -->
-            <div id="perfil" class="seccion">
+            <div id="profile" class="section">
               <h3>Perfil de egreso</h3>
 
-              <div class="formulario">
-                <div class="campo">
-                  <label for="perfil-codigo"> Código </label>
+              <div class="form">
+                <div class="field">
+                  <label for="profile-code"> Código </label>
 
-                  <input type="text" id="perfil-codigo" value="PE-01" />
+                  <input type="text" id="profile-code" value="PE-01" />
                 </div>
 
-                <div class="campo">
-                  <label for="perfil-contribucion"> Contribución </label>
+                <div class="field">
+                  <label for="profile-contribution"> Contribución </label>
 
                   <input
                     type="text"
-                    id="perfil-contribucion"
+                    id="profile-contribution"
                     value="Desarrollo de soluciones tecnológicas"
                   />
                 </div>
@@ -326,95 +329,96 @@ Diseña APIs REST, utiliza bases de datos y desarrolla interfaces web.</textarea
             </div>
 
             <!-- METODOLOGÍA -->
-            <div id="metodologia" class="seccion">
+            <div id="methodology" class="section">
               <h3>Metodología</h3>
 
-              <div class="campo completo">
-                <label for="metodologia-texto">
+              <div class="field full">
+                <label for="methodology-text">
                   Metodología de enseñanza
                 </label>
 
-                <textarea id="metodologia-texto">
+                <textarea id="methodology-text">
 Clases prácticas, ejercicios, proyectos y actividades de desarrollo de aplicaciones web.</textarea
                 >
               </div>
             </div>
 
             <!-- CONTENIDOS -->
-            <div id="contenidos" class="seccion">
+            <div id="contents" class="section">
               <h3>Contenidos</h3>
 
-              <div class="formulario">
-                <div class="campo completo">
-                  <label for="contenidos-texto">
-                    Unidades y temas (uno por línea)
+              <div class="form">
+                <div class="field full">
+                  <label for="contents-text">
+                    Unidades y temas.
                   </label>
 
-                  <textarea id="contenidos-texto"></textarea>
+                  <textarea id="contents-text"></textarea>
                 </div>
               </div>
             </div>
 
             <!-- BIBLIOGRAFÍA -->
-            <div id="bibliografia" class="seccion">
+            <div id="bibliography" class="section">
               <h3>Bibliografía</h3>
 
-              <div class="formulario">
-                <div class="campo completo">
-                  <label for="bibliografia-texto">
-                    Referencias bibliográficas (una por línea)
+              <div class="form">
+                <div class="field full">
+                  <label for="bibliography-text">
+                    Referencias bibliográficas.
                   </label>
 
-                  <textarea id="bibliografia-texto"></textarea>
+                  <textarea id="bibliography-text"></textarea>
                 </div>
               </div>
             </div>
 
             <!-- EVALUACIÓN -->
-            <div id="evaluacion" class="seccion">
+            <div id="evaluation" class="section">
               <h3>Evaluación</h3>
 
-              <div class="formulario">
-                <div class="campo">
-                  <label for="evaluacion-parcial"> Evaluación parcial </label>
+              <div class="form">
+                <div class="field">
+                  <label for="midterm-assessment"> Evaluación parcial </label>
 
-                  <input type="text" id="evaluacion-parcial" value="30%" />
+                  <input type="text" id="midterm-assessment" value="30%" />
                 </div>
 
-                <div class="campo">
-                  <label for="evaluacion-final"> Evaluación final </label>
+                <div class="field">
+                  <label for="final-assessment"> Evaluación final </label>
 
-                  <input type="text" id="evaluacion-final" value="40%" />
+                  <input type="text" id="final-assessment" value="40%" />
                 </div>
 
-                <div class="campo">
-                  <label for="evaluacion-proyecto"> Proyecto </label>
+                <div class="field">
+                  <label for="project-assessment"> Proyecto </label>
 
-                  <input type="text" id="evaluacion-proyecto" value="30%" />
+                  <input type="text" id="project-assessment" value="30%" />
                 </div>
               </div>
             </div>
           </section>
         </div>
 
-        <!-- ACCIONES -->
-        <div class="acciones-programa">
-          <button type="button" id="guardar-seccion">Guardar borrador</button>
-          <button type="button" id="crear-version">Crear nueva versión</button>
-          <button type="button" id="enviar-revision" class="guardar">
+        <!-- ACCIONES DEL FLUJO: guardar, revisar, aprobar, autorizar y generar PDF -->
+        <div class="program-actions">
+          <button type="button" id="save-section" hidden>Guardar borrador</button>
+          <button type="button" id="create-version" hidden>Crear nueva versión</button>
+          <button type="button" id="submit-review" class="save" hidden>
             Enviar a revisión
           </button>
-          <button type="button" id="devolver">Devolver al docente</button>
-          <button type="button" id="aprobar">Aprobar</button>
-          <button type="button" id="autorizar">Autorizar versión</button>
-          <button type="button" id="vista-previa-pdf">Vista previa PDF</button>
-          <button type="button" id="imprimir-pdf" hidden>
-            Descargar PDF
+          <button type="button" id="review-program" hidden>Tomar revisión</button>
+          <button type="button" id="return-program" hidden>Devolver al docente</button>
+          <button type="button" id="approve-program" hidden>Aprobar</button>
+          <button type="button" id="authorize-version" hidden>Autorizar versión</button>
+          <button type="button" id="pdf-preview" hidden>Descargar PDF autorizado</button>
+          <button type="button" id="print-pdf" hidden>
+            Imprimir / guardar PDF
           </button>
-          <button type="button" id="cerrar-vista-previa" hidden>
+          <button type="button" id="close-preview" hidden>
             Volver al editor
           </button>
-          <button type="button" id="cancelar-cambios">Cancelar cambios</button>
+          <button type="button" id="cancel-changes" hidden>Cancelar cambios</button>
         </div>
       </main>
     </div>

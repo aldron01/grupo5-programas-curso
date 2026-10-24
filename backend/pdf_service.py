@@ -1,3 +1,5 @@
+"""Arma el PDF institucional del programa a partir de sus datos y secciones."""
+
 import json
 from io import BytesIO
 from xml.sax.saxutils import escape
@@ -15,96 +17,113 @@ from reportlab.platypus import (
     TableStyle,
 )
 
-try:
-    from .services.programas_service import aplanar_datos
-except ImportError:
-    from services.programas_service import aplanar_datos
+def flatten_data(value, prefix=""):
+    """Pone los datos anidados en una lista de campos fácil de imprimir."""
+    if isinstance(value, dict):
+        flattened = {}
+        for key, child in value.items():
+            path = f"{prefix}.{key}" if prefix else key
+            flattened.update(flatten_data(child, path))
+        return flattened
+    if isinstance(value, list):
+        flattened = {}
+        for index, child in enumerate(value):
+            flattened.update(flatten_data(child, f"{prefix}[{index}]"))
+        return flattened
+    return {prefix: value} if prefix else {}
 
-def construir_pdf(programa, version):
+def build_pdf(program, version, approval=None):
+    """Arma el documento y devuelve sus bytes para poder descargarlo."""
     # ReportLab construye el documento en memoria para devolverlo como descarga HTTP.
     buffer = BytesIO()
-    documento = SimpleDocTemplate(
+    document = SimpleDocTemplate(
         buffer,
         pagesize=A4,
         rightMargin=18 * mm,
         leftMargin=18 * mm,
         topMargin=18 * mm,
         bottomMargin=18 * mm,
-        title=f"Programa de curso - {programa.get('asignatura', '')}",
+        title=f"Programa de curso - {program.get('asignatura', '')}",
         author="Universidad Da Vinci de Guatemala",
     )
-    estilos = getSampleStyleSheet()
-    estilos.add(ParagraphStyle(
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(
         name="TituloInstitucional",
-        parent=estilos["Title"],
+        parent=styles["Title"],
         alignment=TA_CENTER,
         textColor=colors.HexColor("#001D4A"),
         fontSize=15,
         leading=19,
         spaceAfter=5 * mm,
     ))
-    estilos.add(ParagraphStyle(
+    styles.add(ParagraphStyle(
         name="SeccionPrograma",
-        parent=estilos["Heading2"],
+        parent=styles["Heading2"],
         textColor=colors.HexColor("#001D4A"),
         fontSize=11,
         leading=14,
         spaceBefore=4 * mm,
         spaceAfter=2 * mm,
     ))
-    estilos.add(ParagraphStyle(
+    styles.add(ParagraphStyle(
         name="TextoPrograma",
-        parent=estilos["BodyText"],
+        parent=styles["BodyText"],
         fontSize=9,
         leading=12,
     ))
 
-    def texto(valor):
+    def text(value):
+        """Escapa valores de usuario antes de insertarlos en párrafos del PDF."""
         # Escapa el texto para que caracteres del usuario no se interpreten como markup.
-        if isinstance(valor, (dict, list)):
-            return json.dumps(valor, ensure_ascii=False)
-        return escape(str(valor if valor is not None else ""))
+        if isinstance(value, (dict, list)):
+            return json.dumps(value, ensure_ascii=False)
+        return escape(str(value if value is not None else ""))
 
     general = (
         version.get("secciones", {})
         .get("general", {})
         .get("contenido", {})
     )
-    programa_pdf = dict(programa)
+    program_pdf = dict(program)
     # Las etiquetas del formulario usan nombres distintos a los de la ficha del programa.
-    equivalencias = {
+    field_mappings = {
         "programa": "programa_academico",
         "ciclo": "ciclo_academico",
         "anio": "anio",
         "nivel": "nivel_academico",
         "horas": "horas_semanales",
     }
-    for campo, valor_general in general.items():
-        programa_pdf[equivalencias.get(campo, campo)] = valor_general
+    for field, general_value in general.items():
+        program_pdf[field_mappings.get(field, field)] = general_value
 
-    historia = [
-        Paragraph("UNIVERSIDAD DA VINCI DE GUATEMALA", estilos["TituloInstitucional"]),
-        Paragraph("PROGRAMA DE CURSO", estilos["Heading1"]),
+    story = [
+        Paragraph("UNIVERSIDAD DA VINCI DE GUATEMALA", styles["TituloInstitucional"]),
+        Paragraph("PROGRAMA DE CURSO", styles["Heading1"]),
         Spacer(1, 3 * mm),
     ]
-    resumen = [
-        ["Asignatura", texto(programa_pdf.get("asignatura"))],
-        ["Código", texto(programa_pdf.get("codigo"))],
-        ["Programa académico", texto(programa_pdf.get("programa_academico"))],
-        ["Versión", texto(version.get("numero_version"))],
-        ["Estado", texto(version.get("estado", "")).replace("_", " ").upper()],
-        ["Departamento", texto(programa_pdf.get("departamento"))],
-        ["Facultad", texto(programa_pdf.get("facultad"))],
-        ["Ciclo", texto(programa_pdf.get("ciclo_academico"))],
-        ["Año", texto(programa_pdf.get("anio"))],
-        ["Nivel", texto(programa_pdf.get("nivel_academico"))],
-        ["Modalidad", texto(programa_pdf.get("modalidad"))],
-        ["Créditos", texto(programa_pdf.get("creditos"))],
-        ["Horas", texto(programa_pdf.get("horas_semanales"))],
-        ["Sede", texto(programa_pdf.get("sede"))],
+    summary = [
+        ["Asignatura", text(program_pdf.get("asignatura"))],
+        ["Código", text(program_pdf.get("codigo"))],
+        ["Programa académico", text(program_pdf.get("programa_academico"))],
+        ["Versión", text(version.get("numero_version"))],
+        ["Estado", text(version.get("estado", "")).replace("_", " ").upper()],
+        ["Departamento", text(program_pdf.get("departamento"))],
+        ["Facultad", text(program_pdf.get("facultad"))],
+        ["Ciclo", text(program_pdf.get("ciclo_academico"))],
+        ["Año", text(program_pdf.get("anio"))],
+        ["Nivel", text(program_pdf.get("nivel_academico"))],
+        ["Modalidad", text(program_pdf.get("modalidad"))],
+        ["Créditos", text(program_pdf.get("creditos"))],
+        ["Horas", text(program_pdf.get("horas_semanales"))],
+        ["Sede", text(program_pdf.get("sede"))],
     ]
-    tabla_resumen = Table(resumen, colWidths=[35 * mm, 130 * mm])
-    tabla_resumen.setStyle(TableStyle([
+    if approval:
+        summary.extend([
+            ["Fecha de autorización", text(approval.get("creado_en"))],
+            ["Aprobación de origen", text(approval.get("id"))],
+        ])
+    summary_table = Table(summary, colWidths=[35 * mm, 130 * mm])
+    summary_table.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#E7EDF7")),
         ("TEXTCOLOR", (0, 0), (0, -1), colors.HexColor("#001D4A")),
         ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
@@ -116,25 +135,25 @@ def construir_pdf(programa, version):
         ("TOPPADDING", (0, 0), (-1, -1), 4),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
     ]))
-    historia.append(tabla_resumen)
+    story.append(summary_table)
 
     # Cada sección con contenido se presenta como una tabla independiente.
-    for seccion, datos in version.get("secciones", {}).items():
-        contenido = datos.get("contenido", {}) if isinstance(datos, dict) else {}
-        if not contenido:
+    for section, data in version.get("secciones", {}).items():
+        content = data.get("contenido", {}) if isinstance(data, dict) else {}
+        if not content:
             continue
 
-        historia.extend([
-            Paragraph(seccion.replace("_", " ").title(), estilos["SeccionPrograma"]),
+        story.extend([
+            Paragraph(section.replace("_", " ").title(), styles["SeccionPrograma"]),
         ])
-        filas = []
-        for clave, valor in aplanar_datos(contenido).items():
-            filas.append([
-                Paragraph(clave.replace("_", " ").title(), estilos["TextoPrograma"]),
-                Paragraph(texto(valor).replace("\n", "<br/>"), estilos["TextoPrograma"]),
+        rows = []
+        for key, value in flatten_data(content).items():
+            rows.append([
+                Paragraph(key.replace("_", " ").title(), styles["TextoPrograma"]),
+                Paragraph(text(value).replace("\n", "<br/>"), styles["TextoPrograma"]),
             ])
-        tabla = Table(filas, colWidths=[45 * mm, 120 * mm], repeatRows=0)
-        tabla.setStyle(TableStyle([
+        table = Table(rows, colWidths=[45 * mm, 120 * mm], repeatRows=0)
+        table.setStyle(TableStyle([
             ("GRID", (0, 0), (-1, -1), 0.35, colors.HexColor("#A0A0A0")),
             ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#F4F6F8")),
             ("VALIGN", (0, 0), (-1, -1), "TOP"),
@@ -143,7 +162,7 @@ def construir_pdf(programa, version):
             ("TOPPADDING", (0, 0), (-1, -1), 4),
             ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
         ]))
-        historia.append(tabla)
+        story.append(table)
 
-    documento.build(historia)
+    document.build(story)
     return buffer.getvalue()
