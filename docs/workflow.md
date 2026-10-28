@@ -4,9 +4,10 @@ Este documento describe el proceso de gestión de los programas de curso, desde 
 
 ## Componentes del Flujo
 - **Frontend**: Interfaz donde el usuario gestiona el contenido del programa.
-- **Backend (`app.py`)**: Actúa como el núcleo que integra los routers de los diferentes grupos, sirve la interfaz web y estandariza los errores de la API.
-- **Módulo G5**: Implementa las reglas de negocio, la autenticación delegada a G2 y la persistencia en MySQL.
+- **Módulo `g5_programas`**: Implementa las rutas, reglas de negocio, autenticación delegada a G2 y persistencia en MySQL.
 - **Servicio de PDF**: Genera el documento institucional en formato PDF utilizando la librería `ReportLab`.
+
+La aplicación común registra el router del módulo bajo `/api/v1`, configura la sesión de base de datos y conecta el middleware de autenticación de G2.
 
 ## Ciclo de Vida de una Versión
 
