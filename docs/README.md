@@ -1,34 +1,31 @@
 # Programas de curso UDV
 
-Módulo para gestionar programas de curso, sus versiones y la generación del PDF institucional.
+Módulo FastAPI para gestionar programas de curso y sus versiones, controlar el
+flujo de revisión y autorización, y generar el PDF institucional. G5 se integra
+con la aplicación compartida y la base de datos de G1; este repositorio no
+incluye un servidor FastAPI independiente ni un `main.py`.
 
-## Estructura del proyecto
+## Estructura
 
 ```text
 grupo-5-programas-pdf/
 ├── .env.example
-├── .gitignore
 ├── requirements.txt
 ├── g5_programas/
-│   ├── __init__.py
-│   ├── auth.py
-│   ├── database.py
-│   ├── domain.py
-│   ├── errors.py
-│   ├── pdf.py
-│   ├── pdf_service.py
-│   ├── repository.py
-│   └── router.py
+│   ├── auth.py             # Identidad autenticada y permisos por rol
+│   ├── database.py        # Sesiones SQLAlchemy y errores de MySQL
+│   ├── domain.py          # Estados y reglas de transición
+│   ├── errors.py          # Errores de API
+│   ├── pdf.py             # Adaptador del generador de PDF
+│   ├── pdf_service.py     # Construcción del documento con ReportLab
+│   ├── repository.py      # Consultas y operaciones sobre el esquema G1
+│   └── router.py          # Rutas bajo /api/v1
 ├── frontend/
 │   ├── Programa.html
 │   ├── script.js
 │   ├── assets/
-│   │   └── udv-logo.jpg
 │   └── estilos/
-│       ├── style.css
-│       └── udv.css
 ├── tests/
-│   ├── conftest.py
 │   └── test_program_flow.py
 └── docs/
     ├── README.md
@@ -36,18 +33,69 @@ grupo-5-programas-pdf/
     └── workflow.md
 ```
 
-## Arranque rápido
+## Requisitos e integración
 
-1. Configure `.env` con su `DATABASE_URL`.
-2. Instale dependencias: `pip install -r requirements.txt`.
-3. Ejecute las pruebas: `pytest -q`.
+- Python 3.10 o posterior.
+- Una base MySQL compatible con el esquema compartido de G1, incluyendo sus
+  catálogos, tablas, vistas y procedimientos usados por el repositorio. La
+  autorización utiliza `sp_autorizar_version`.
+- Una aplicación host FastAPI que registre `g5_programas.router`, configure
+  `app.state.database_session_factory` (o permita que G5 cree la sesión desde
+  `DATABASE_URL`) e instale su middleware de autenticación.
+- El middleware debe colocar el usuario autenticado en
+  `request.state.user` o `request.state.current_user`, con ID y roles
+  reconocibles por [auth.py](../g5_programas/auth.py).
 
-El paquete `g5_programas` es un módulo de integración: expone `router` para que la aplicación común lo registre, y no contiene un servidor independiente ni un `main.py` local.
+Instale las dependencias del módulo:
 
-## Módulos principales
+```bash
+python -m pip install -r requirements.txt
+```
 
-- `g5_programas/router.py`: endpoints de programas, versiones, transiciones y PDF.
-- `g5_programas/domain.py`: reglas de estados y validaciones de negocio.
-- `g5_programas/repository.py`: consultas y operaciones sobre MySQL.
-- `g5_programas/auth.py`: actor autenticado y validación de roles.
-- `g5_programas/pdf_service.py`: generación del documento institucional.
+Configure `DATABASE_URL` en el entorno del proceso host con una URL de
+SQLAlchemy para MySQL, por ejemplo:
+
+```bash
+export DATABASE_URL='mysql+pymysql://usuario:clave@localhost:3306/db_udv'
+```
+
+`.env.example` es una plantilla; el proyecto no carga archivos `.env`
+automáticamente. En producción, proporcione la variable mediante el mecanismo
+de configuración de la aplicación host.
+
+Registre el router desde la aplicación compartida:
+
+```python
+from fastapi import FastAPI
+from g5_programas import router
+
+app = FastAPI()
+app.include_router(router)
+```
+
+La aplicación host también debe instalar la autenticación que pueble el
+usuario en `request.state`. Si no configura una fábrica de sesiones propia,
+G5 usa `DATABASE_URL`.
+
+## Frontend y pruebas
+
+El frontend está en `frontend/`. Actualmente `script.js` apunta a
+`http://127.0.0.1:8000/api/v1` y carga el programa con ID `1`; ajuste esos
+valores para el entorno donde se publique. El selector de rol y los nombres
+mostrados en la página son parte de la interfaz de demostración: no sustituyen
+la sesión autenticada ni los permisos que valida el backend.
+
+Ejecute las pruebas disponibles desde la raíz:
+
+```bash
+pytest -q
+```
+
+Las pruebas actuales cubren transiciones, estados editables, unicidad de la
+versión autorizada y permisos; no reemplazan una prueba de integración con
+MySQL y la aplicación host.
+
+## Documentación
+
+- [Descripción general](overview.md): arquitectura, dependencias e integración.
+- [Flujo del sistema](workflow.md): estados, permisos, endpoints y PDF.
