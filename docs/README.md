@@ -55,16 +55,27 @@ Instale las dependencias del módulo:
 python -m pip install -r requirements.txt
 ```
 
-Configure `DATABASE_URL` en el entorno del proceso host con una URL de
-SQLAlchemy para MySQL, por ejemplo:
+`DATABASE_URL` debe ser una URL de SQLAlchemy para MySQL. El host y puerto
+dependen de dónde se ejecute la aplicación:
 
 ```bash
-export DATABASE_URL='mysql+pymysql://usuario:clave@localhost:3306/db_udv'
+# Aplicación ejecutada directamente en el equipo; Docker Compose publica MySQL
+# en el puerto 3307 por defecto (MYSQL_PORT_LOCAL).
+export DATABASE_URL='mysql+pymysql://<usuario>:<contraseña>@localhost:3307/db_udv'
 ```
 
-`.env.example` es una plantilla; el proyecto no carga archivos `.env`
-automáticamente. En producción, proporcione la variable mediante el mecanismo
-de configuración de la aplicación host.
+Si la API y MySQL corren en Docker Compose, el host es `db` y el puerto interno
+es `3306`:
+
+```text
+mysql+pymysql://<usuario>:<contraseña>@db:3306/db_udv
+```
+
+En Railway, configure `DATABASE_URL` en las variables del servicio con la URL
+privada de la base MySQL. No escriba credenciales reales en el código ni en
+este archivo. G5 aislado lee la variable del entorno y no carga `.env`
+automáticamente; en la aplicación compartida, G2 carga `.env` y Docker
+Compose también aplica su configuración de entorno.
 
 Registre el router desde la aplicación compartida:
 
