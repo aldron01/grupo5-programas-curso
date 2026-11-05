@@ -10,27 +10,32 @@ incluye un servidor FastAPI independiente ni un `main.py`.
 ```text
 grupo-5-programas-pdf/
 ├── .env.example
+├── .gitignore
 ├── requirements.txt
 ├── g5_programas/
-│   ├── auth.py             # Identidad autenticada y permisos por rol
-│   ├── database.py        # Sesiones SQLAlchemy y errores de MySQL
-│   ├── domain.py          # Estados y reglas de transición
-│   ├── errors.py          # Errores de API
-│   ├── pdf.py             # Adaptador del generador de PDF
-│   ├── pdf_service.py     # Construcción del documento con ReportLab
-│   ├── repository.py      # Consultas y operaciones sobre el esquema G1
-│   └── router.py          # Rutas bajo /api/v1
+│   ├── __init__.py
+│   ├── auth.py             # Autenticación G2 y permisos por rol
+│   ├── database.py         # Sesiones SQLAlchemy y errores de MySQL
+│   ├── domain.py           # Estados y reglas de transición
+│   ├── errors.py           # Errores de API
+│   ├── pdf.py              # Adaptador del generador de PDF
+│   ├── pdf_service.py      # Construcción del documento con ReportLab
+│   ├── repository.py       # Consultas y operaciones sobre el esquema G1
+│   └── router.py           # Rutas bajo /api/v1
 ├── frontend/
 │   ├── Programa.html
 │   ├── script.js
 │   ├── assets/
+│   │   └── udv-logo.jpg
 │   └── estilos/
+│       ├── style.css
+│       └── udv.css
 ├── tests/
+│   ├── conftest.py
 │   └── test_program_flow.py
 └── docs/
     ├── README.md
-    ├── overview.md
-    └── workflow.md
+    └── instrucciones.md
 ```
 
 ## Requisitos e integración
@@ -41,10 +46,8 @@ grupo-5-programas-pdf/
   autorización utiliza `sp_autorizar_version`.
 - Una aplicación host FastAPI que registre `g5_programas.router`, configure
   `app.state.database_session_factory` (o permita que G5 cree la sesión desde
-  `DATABASE_URL`) e instale su middleware de autenticación.
-- El middleware debe colocar el usuario autenticado en
-  `request.state.user` o `request.state.current_user`, con ID y roles
-  reconocibles por [auth.py](../g5_programas/auth.py).
+  `DATABASE_URL`) y tenga disponible el paquete G2 con
+  `g2_api.routers.auth.obtener_usuario_actual`.
 
 Instale las dependencias del módulo:
 
@@ -73,9 +76,9 @@ app = FastAPI()
 app.include_router(router)
 ```
 
-La aplicación host también debe instalar la autenticación que pueble el
-usuario en `request.state`. Si no configura una fábrica de sesiones propia,
-G5 usa `DATABASE_URL`.
+G5 usa `obtener_usuario_actual` de G2 como dependencia de autenticación. Si
+G2 no está disponible, los endpoints protegidos responden con error 503. Si no
+configura una fábrica de sesiones propia, G5 usa `DATABASE_URL`.
 
 ## Frontend y pruebas
 
@@ -97,5 +100,5 @@ MySQL y la aplicación host.
 
 ## Documentación
 
-- [Descripción general](overview.md): arquitectura, dependencias e integración.
-- [Flujo del sistema](workflow.md): estados, permisos, endpoints y PDF.
+- [Instrucciones para QA](instrucciones.md): contexto, cambios que revisar,
+  pruebas y pendientes de integración.
