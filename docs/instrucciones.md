@@ -25,8 +25,8 @@ y el [`CONTRATO_COMUN.md`](https://github.com/jonnyverasdl-cloud/UDV_Proyecto/bl
 - **Documentación:** arquitectura, flujo y criterios de revisión se mantienen
   en el README y esta guía.
 
-El selector de rol del frontend solo sirve para mostrar opciones de la interfaz;
-no representa autenticación real ni concede permisos en el backend.
+El selector se llena con los roles de la cuenta autenticada en G2. Solo cambia
+la vista de trabajo; el backend vuelve a validar los permisos en cada ruta.
 
 ## Flujo que debe validar QA
 
@@ -63,6 +63,11 @@ inmutable; una nueva versión se crea como borrador clonado.
       en `/api/v1/openapi.json`.
 - [ ] Verificar que `DATABASE_URL` apunte a una base de prueba compatible con
       el esquema de G1; G5 no debe crear ni alterar tablas.
+- [ ] Iniciar sesión desde el formulario con una cuenta G2. Confirmar que las
+      rutas protegidas envían `Authorization: Bearer ...` y que el selector
+      solo muestra roles devueltos por G2.
+- [ ] Abrir el frontend con `?program_id=<id>` y confirmar que no depende de
+      una URL local ni de un ID de programa fijo.
 - [ ] Probar una petición autenticada con el token Bearer de G2. Confirmar que
       el usuario y sus roles llegan desde `obtener_usuario_actual`, no desde
       el selector del navegador.
@@ -81,6 +86,9 @@ inmutable; una nueva versión se crea como borrador clonado.
 
 ### Persistencia, auditoría y PDF
 
+- [ ] Probar los filtros del listado por curso, período, sede, estado y versión.
+- [ ] Crear una versión desde una asignación G3 y confirmar que
+      `tarea_destinatario_origen_id` se conserva en la versión creada.
 - [ ] Guardar una sección y comprobar que las demás secciones se conserven.
 - [ ] Confirmar que las filas dinámicas mantienen su orden tras guardar y
       volver a cargar.

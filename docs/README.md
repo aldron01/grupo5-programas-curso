@@ -91,13 +91,27 @@ G5 usa `obtener_usuario_actual` de G2 como dependencia de autenticación. Si
 G2 no está disponible, los endpoints protegidos responden con error 503. Si no
 configura una fábrica de sesiones propia, G5 usa `DATABASE_URL`.
 
+El punto de entrada compartido debe registrar también el manejador de errores
+de G5 para conservar el formato común de las excepciones `ApiError`:
+
+```python
+from g5_programas.errors import registrar_errores
+
+registrar_errores(app)
+```
+
 ## Frontend y pruebas
 
-El frontend está en `frontend/`. Actualmente `script.js` apunta a
-`http://127.0.0.1:8000/api/v1` y carga el programa con ID `1`; ajuste esos
-valores para el entorno donde se publique. El selector de rol y los nombres
-mostrados en la página son parte de la interfaz de demostración: no sustituyen
-la sesión autenticada ni los permisos que valida el backend.
+El frontend está en `frontend/`. Usa la API del mismo origen, muestra el
+formulario de acceso de G2 y carga el programa indicado por
+`?program_id=<id>`, por ejemplo `Programa.html?program_id=1`. El token se
+mantiene en `sessionStorage` durante la pestaña y se envía como Bearer en las
+solicitudes protegidas. Los roles del selector se limitan a los que devuelve
+G2; el backend sigue siendo quien autoriza cada operación.
+
+Al crear una versión desde un trabajo de G3, el enlace puede incluir
+`&tarea_destinatario_origen_id=<id-de-asignacion>`. Si no se proporciona en
+una versión nueva, se conserva la asignación de origen de la versión clonada.
 
 Ejecute las pruebas disponibles desde la raíz:
 
@@ -105,9 +119,9 @@ Ejecute las pruebas disponibles desde la raíz:
 pytest -q
 ```
 
-Las pruebas actuales cubren transiciones, estados editables, unicidad de la
-versión autorizada y permisos; no reemplazan una prueba de integración con
-MySQL y la aplicación host.
+Las pruebas unitarias cubren transiciones, permisos, compatibilidad del error
+con FastAPI, filtros del listado y selección de la fábrica de sesiones; no
+reemplazan una prueba de integración con MySQL y la aplicación host.
 
 ## Documentación
 
