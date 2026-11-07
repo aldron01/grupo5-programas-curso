@@ -11,7 +11,7 @@
 | Coordinador (abre los PRs) | Balta Eduardo Tello Recinos (202201740) |baltatello56|
 | Dev | Aldron Edgardo Marin Ramos (202406376) |aldron01|
 | Dev | Hector Eduardo Cahuil Mateo (202401449)|hectorcahuil|
-| Dev | Domingo Darinel Lopez Ramirez (202505663) | |
+| Dev | Domingo Darinel Lopez Ramirez (202505663) |darinel940-hash|
 | Dev | Kimberly Alejandra Pérez Hernández (202404070) |kp4531410-lab|
 
 ## 2. Alcance del módulo
