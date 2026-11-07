@@ -1,6 +1,6 @@
 # CONTRATO.md — Grupo 5 · Programas de curso, versiones y PDF
 
-> **Nivel 3 de la jerarquía de fuentes de verdad** (README §0). Por encima:
+> **Nivel 3 de la jerarquía de fuentes de verdad** (README ). Por encima:
 > README y CONTRATO_COMUN.md. Por debajo: el .docx de esta carpeta. Si el
 > .docx y este contrato se contradicen, gana este contrato; lo que el .docx
 > exige y aquí no aparece sigue siendo obligatorio. Este contrato es lo que
@@ -11,10 +11,11 @@
 
 | Rol | Nombre | Usuario GitHub |
 |---|---|---|
-| Coordinador (abre los PRs) | | |
-| Dev | | |
-| Dev | | |
-| Dev | | |
+| Coordinador (abre los PRs) | Balta Eduardo Tello Recinos (202201740) |baltatello56|
+| Dev | Aldron Edgardo Marin Ramos (202406376) |aldron01|
+| Dev | Hector Eduardo Cahuil Mateo (202401449)|hectorcahuil|
+| Dev | Domingo Darinel Lopez Ramirez (202505663) | |
+| Dev | Kimberly Alejandra Pérez Hernández (202404070) |kp4531410-lab|
 
 ## 2. Alcance del módulo
 
