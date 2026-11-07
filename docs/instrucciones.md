@@ -20,8 +20,8 @@ y el [`CONTRATO_COMUN.md`](https://github.com/jonnyverasdl-cloud/UDV_Proyecto/bl
   define un proveedor alternativo que responde 503. Verificar que este sea el
   comportamiento esperado al ejecutar G5 fuera de la aplicación compartida.
 - **Dependencias:** `requirements.txt` fija las versiones oficiales de
-  FastAPI, Uvicorn, SQLAlchemy, PyMySQL y cryptography. No usar rangos de
-  versiones para estas librerías.
+  FastAPI, Uvicorn, SQLAlchemy, PyMySQL, cryptography, ReportLab y pytest. No
+  usar rangos de versiones.
 - **Documentación:** arquitectura, flujo y criterios de revisión se mantienen
   en el README y esta guía.
 
@@ -56,11 +56,10 @@ inmutable; una nueva versión se crea como borrador clonado.
 
 ### Instalación y arranque
 
-- [ ] Instalar desde cero con el `requirements.txt` de la raíz del proyecto
-      compartido y confirmar que las dependencias se resuelvan sin rangos
-      incompatibles.
-- [ ] Confirmar que `main.py` incluya el router de G5 y que sus rutas aparezcan
-      en `/api/v1/openapi.json`.
+- [ ] Instalar las dependencias declaradas en `requirements.txt` y confirmar
+      que la instalación termine correctamente.
+- [ ] Confirmar que la aplicación host incluya el router G5 y llame a
+      `registrar_errores(app)`; revisar las rutas en `/api/v1/openapi.json`.
 - [ ] Verificar que `DATABASE_URL` apunte a una base de prueba compatible con
       el esquema de G1; G5 no debe crear ni alterar tablas.
 - [ ] Iniciar sesión desde el formulario con una cuenta G2. Confirmar que las
@@ -106,9 +105,11 @@ inmutable; una nueva versión se crea como borrador clonado.
 Desde la raíz del proyecto:
 
 ```bash
-pytest -q
+python -m pytest -q
 ```
 
-Las pruebas unitarias actuales cubren reglas de estados, editabilidad,
-unicidad de versión autorizada y permisos. Un resultado exitoso no sustituye
-las pruebas de integración con G2, MySQL, OpenAPI ni la descarga real del PDF.
+La suite actual contiene 15 pruebas para reglas de estados y permisos,
+selección de sesiones y auditoría (con mocks), errores HTTP, filtros y
+OpenAPI, y validación del vínculo de asignación. No prueba una conexión MySQL
+real ni la descarga del PDF; un resultado exitoso no sustituye la integración
+con G2, la aplicación host y una base de prueba.

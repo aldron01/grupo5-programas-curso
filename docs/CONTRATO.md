@@ -1,11 +1,8 @@
 # CONTRATO.md — Grupo 5 · Programas de curso, versiones y PDF
 
-> **Nivel 3 de la jerarquía de fuentes de verdad** (README ). Por encima:
-> README y CONTRATO_COMUN.md. Por debajo: el .docx de esta carpeta. Si el
-> .docx y este contrato se contradicen, gana este contrato; lo que el .docx
-> exige y aquí no aparece sigue siendo obligatorio. Este contrato es lo que
-> se revisa en cada PR. Cambios: se piden al PM por escrito y quedan en el
-> historial.
+> **Nivel 3 de la jerarquía de fuentes de verdad** (README). Por encima:
+> README y CONTRATO_COMUN.md. Este contrato es lo que se revisa en cada PR.
+> Cambios: se piden al PM por escrito y quedan en el historial.
 
 ## 1. El equipo
 
@@ -61,8 +58,9 @@ Transiciones válidas de una versión de programa:
 
 Una transición fuera de esta tabla responde 409 sin modificar datos.
 
-**Eventos que emite este módulo** (nombres en el CONTRATO.md del G6):
-`program.authorized`.
+**Evento requerido por el contrato de integración** (nombre definido por G6):
+`program.authorized`. La emisión efectiva del evento debe verificarse en la
+integración con el mecanismo compartido de eventos.
 
 ## 4. Reglas duras del módulo
 
@@ -104,4 +102,4 @@ Una transición fuera de esta tabla responde 409 sin modificar datos.
 | Fecha | Qué cambió | Quién lo pidió | Aprobado por |
 |---|---|---|---|
 | 2026-09-26 | Versión inicial | — | PM |
-| 2026-09-28 | Jerarquía de fuentes; prefijo `/api/v1`; tabla de endpoints completada con las rutas del .docx; **nuevo** `POST /program-versions/{id}/review` (el estado `under_review` no tenía acción); tabla de transiciones de programa; evento emitido; reglas de versionado del .docx que faltaban; checklist con pruebas y OpenAPI | PM | PM |
+| 2026-09-28 | Jerarquía de fuentes; prefijo `/api/v1`; tabla de endpoints completada con las rutas del .docx; **nuevo** `POST /program-versions/{id}/review` (el estado `under_review` no tenía acción); tabla de transiciones de programa; evento requerido; reglas de versionado del .docx que faltaban; checklist con pruebas y OpenAPI | PM | PM |
