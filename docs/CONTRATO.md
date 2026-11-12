@@ -48,12 +48,12 @@ Transiciones válidas de una versión de programa:
 
 | Estado actual | Acción | Estado nuevo | Actor |
 |---|---|---|---|
-| draft | submit | submitted | Elaborador (docente) |
+| draft | submit | submitted | Gestor de programa (`coordinator` o `reviewer`) |
 | submitted | review | under_review | Revisor |
 | under_review | return | returned | Revisor |
-| returned | submit | submitted | Elaborador (docente) |
+| returned | submit | submitted | Gestor de programa (`coordinator` o `reviewer`) |
 | under_review | approve | approved | Revisor |
-| approved | authorize | authorized | Autoridad |
+| approved | authorize | authorized | `authority` |
 | authorized | (otra versión se autoriza) | superseded | Sistema |
 
 Una transición fuera de esta tabla responde 409 sin modificar datos.
@@ -67,6 +67,9 @@ integración con el mecanismo compartido de eventos.
 - El programa lógico y sus versiones son entidades distintas.
 - Editar solo está permitido en `draft` o `returned`; enviar congela la
   edición hasta una devolución.
+- La autorización usa exclusivamente códigos oficiales de rol de G1. Según
+  su seed, `coordinator` y `reviewer` gestionan programas, `reviewer` revisa
+  y `authority` autoriza; `admin`, `teacher` y `auditor` tienen consulta.
 - Solo UNA versión autorizada y vigente por curso/sede/período.
 - Una versión autorizada es INMUTABLE: los cambios van en un borrador nuevo
   (clonación), jamás editando la vigente.

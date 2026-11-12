@@ -50,6 +50,7 @@ def list_course_programs(
     version: Annotated[int | None, Query(ge=1)] = None,
 ):
     """Muestra programas paginados y permite filtrar por curso y versión."""
+    require_role(actor, "reader")
     return repository.list_programs(
         session,
         page,
@@ -72,6 +73,7 @@ def post_course_program(body: dict, session: DbSession, actor: CurrentActor):
 @router.get("/course-programs/{program_id}")
 def course_program(program_id: int, session: DbSession, actor: CurrentActor):
     """Muestra los datos del programa y sus versiones anteriores."""
+    require_role(actor, "reader")
     return repository.get_program(session, program_id)
 
 
@@ -85,6 +87,7 @@ def post_version(program_id: int, body: dict, session: DbSession, actor: Current
 @router.get("/program-versions/{version_id}")
 def read_version(version_id: int, session: DbSession, actor: CurrentActor):
     """Muestra los datos de una versión y todo su contenido."""
+    require_role(actor, "reader")
     return repository.get_version(session, version_id)
 
 
@@ -132,12 +135,14 @@ router.add_api_route("/program-versions/{version_id}/authorize", _transition("au
 @router.get("/program-versions/{version_id}/changes")
 def version_changes(version_id: int, session: DbSession, actor: CurrentActor):
     """Muestra las diferencias con la versión anterior del mismo período."""
+    require_role(actor, "reader")
     return repository.get_changes(session, version_id)
 
 
 @router.get("/program-versions/{version_id}/pdf")
 def version_pdf(version_id: int, session: DbSession, actor: CurrentActor):
     """Genera y descarga el PDF de una versión autorizada."""
+    require_role(actor, "reader")
     content, digest, program, version = repository.generate_pdf_data(session, version_id, actor)
     repository.record_pdf(session, actor, version_id, content, digest)
     filename = f"programa-{program['id']}-version-{version['numero_version']}.pdf"

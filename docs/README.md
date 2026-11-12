@@ -83,6 +83,12 @@ este archivo. G5 aislado lee la variable del entorno y no carga `.env`
 automáticamente; en la aplicación compartida, G2 carga `.env` y Docker
 Compose también aplica su configuración de entorno.
 
+`.env.example` es solo una plantilla y no debe contener valores reales.
+Mantenga las credenciales locales en `.env` (ignorado por Git) o inyéctelas
+al proceso desde el entorno de ejecución. G5 no firma ni valida JWT por su
+cuenta: esa responsabilidad y `SECRET_KEY` pertenecen a G2. No incluya esa
+clave en el frontend ni en archivos compartidos.
+
 Registre el router desde la aplicación compartida:
 
 ```python
@@ -111,12 +117,20 @@ registrar_errores(app)
 
 ## Frontend y pruebas
 
-El frontend está en `frontend/`. Usa la API del mismo origen, muestra el
-formulario de acceso de G2 y carga el programa indicado por
-`?program_id=<id>`, por ejemplo `Programa.html?program_id=1`. El token se
-mantiene en `sessionStorage` durante la pestaña y se envía como Bearer en las
-solicitudes protegidas. Los roles del selector se limitan a los que devuelve
-G2; el backend sigue siendo quien autoriza cada operación.
+El frontend está en `frontend/` y se publica en `/app/g5/Programa.html`. El
+inicio de sesión pertenece a G2 y se realiza desde el portal común de `/app/`
+mediante `POST /api/v1/auth/login`; G5 no implementa un login propio.
+Reutiliza el token `sessionStorage["udv_token"]` y lo envía en el encabezado
+`Authorization: Bearer` a la API del mismo origen. La pantalla carga el
+listado de programas para que el usuario seleccione uno, por lo que
+`program_id` en la URL es opcional.
+
+El selector presenta los códigos oficiales de G1: `admin`, `coordinator`,
+`teacher`, `reviewer`, `authority` y `auditor`. Conforme a los permisos del
+seed de G1, coordinación y revisión pueden gestionar borradores, `reviewer`
+puede revisar/aprobar, `authority` puede autorizar y los roles sin esos
+permisos quedan en consulta. El backend vuelve a validar cada operación.
+La pantalla usa los estilos comunes de `/udv-styles/udv.css`.
 
 Al crear una versión desde un trabajo de G3, el enlace puede incluir
 `&tarea_destinatario_origen_id=<id-de-asignacion>`. Si no se proporciona en
@@ -128,10 +142,11 @@ Ejecute las pruebas disponibles desde la raíz:
 python -m pytest -q
 ```
 
-Las pruebas unitarias cubren transiciones y permisos, el manejador de errores,
-los filtros y OpenAPI, la validación del identificador de asignación, y la
-selección/cierre de sesiones y auditoría con mocks. No conectan a MySQL ni
-reemplazan una prueba de integración con la aplicación host.
+Las pruebas cubren transiciones y permisos, y hacen solicitudes HTTP a rutas
+protegidas con encabezados Bearer y roles oficiales en el formato de usuario
+de G2. El proveedor de identidad se sustituye por fixtures, así que no validan
+un JWT real ni conectan a MySQL. Deben complementarse con pruebas de
+integración en la aplicación host y una base MySQL local de prueba.
 
 ## Documentación
 
