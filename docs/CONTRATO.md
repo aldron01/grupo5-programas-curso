@@ -67,11 +67,11 @@ integración con el mecanismo compartido de eventos.
 - El programa lógico y sus versiones son entidades distintas.
 - Editar solo está permitido en `draft` o `returned`; enviar congela la
   edición hasta una devolución.
-- La autorización usa exclusivamente códigos oficiales de rol de G1. Según
-  su seed, `coordinator` y `reviewer` gestionan programas, `reviewer` revisa
-  y `authority` autoriza. Un usuario solo puede editar una versión si es su
-  autor asignado o tiene el rol `coordinator`; `admin`, `teacher` y `auditor`
-  no pueden editar versiones ajenas.
+- La autorización usa exclusivamente códigos oficiales de rol de G1. Su seed
+  concede `programs.manage` a `admin`, `coordinator` y `reviewer`; `reviewer`
+  revisa y `authority` autoriza. Los gestores pueden crear y editar borradores;
+  además, el docente responsable puede editar su versión. Los demás usuarios
+  reciben 403 al intentar editar.
 - Solo UNA versión autorizada y vigente por curso/sede/período.
 - Una versión autorizada es INMUTABLE: los cambios van en un borrador nuevo
   (clonación), jamás editando la vigente.
@@ -81,6 +81,10 @@ integración con el mecanismo compartido de eventos.
 - El docente responsable debe tener una asignación activa en `docente_curso`
   para el mismo curso, período y sede. Crear un programa desde coordinación
   sin indicar docente no asigna automáticamente a coordinación como docente.
+  Solo los gestores pueden cambiar al docente responsable de una versión.
+- La gestión de borradores y creación de versiones corresponde a los roles
+  con `programs.manage` en G1: `admin`, `coordinator` y `reviewer`. Enviar a
+  revisión sigue limitado a `coordinator` y `reviewer`.
 - Guardar una sección no sobrescribe las demás; las filas mantienen su orden.
 - La suma de ponderaciones de evaluación se valida (100%) cuando ese sea el
   esquema.

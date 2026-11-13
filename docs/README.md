@@ -127,11 +127,12 @@ listado de programas para que el usuario seleccione uno, por lo que
 `program_id` en la URL es opcional.
 
 El selector presenta los códigos oficiales de G1: `admin`, `coordinator`,
-`teacher`, `reviewer`, `authority` y `auditor`. Conforme a los permisos del
-seed de G1, coordinación y revisión pueden gestionar borradores, `reviewer`
-puede revisar/aprobar y `authority` puede autorizar. La pantalla limita la
-edición a coordinación y revisión; el backend además permite editar al autor
-asignado y bloquea a otros usuarios. Los demás accesos se validan en servidor.
+`teacher`, `reviewer`, `authority` y `auditor`. Según el seed, `admin`,
+`coordinator` y `reviewer` tienen `programs.manage`; `reviewer` puede
+revisar/aprobar y `authority` puede autorizar. La pantalla permite a los
+gestores y al docente asignado editar su versión; bloquea a otros usuarios.
+Solo los gestores pueden cambiar al docente responsable. Enviar a revisión sigue
+limitado a coordinación y revisión.
 La pantalla usa los estilos comunes de `/udv-styles/udv.css`.
 
 Los cuerpos de escritura están descritos con modelos Pydantic para que

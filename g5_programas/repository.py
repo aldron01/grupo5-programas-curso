@@ -14,7 +14,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from .auth import Actor
+from .auth import Actor, has_role
 from .database import set_database_actor
 from .domain import editable, next_status
 from .errors import ApiError
@@ -234,7 +234,8 @@ def _load_sections(session: Session, version: dict) -> dict:
     ))
     people = _one(
         session,
-        """SELECT CONCAT_WS(' ', d.nombres, d.apellidos) AS docente,
+        """SELECT pv.docente_responsable_id,
+                  CONCAT_WS(' ', d.nombres, d.apellidos) AS docente,
                   CONCAT_WS(' ', r.nombres, r.apellidos) AS revisor,
                   CONCAT_WS(' ', a.nombres, a.apellidos) AS autoridad
            FROM programa_version pv
@@ -680,6 +681,32 @@ def _validate_sections(sections: dict):
             raise ApiError(422, "VALIDATION_ERROR", "El contenido de sección no es válido.", {name: "contenido debe ser un objeto o una lista."})
 
 
+def _require_manager_for_responsible_change(
+    actor: Actor,
+    version: dict,
+    content: dict,
+) -> None:
+    """Solo un gestor puede transferir la asignación de una versión a otro docente."""
+    raw_id = content.get("docente_responsable_id")
+    if raw_id is None:
+        return
+    try:
+        if isinstance(raw_id, bool) or (
+            isinstance(raw_id, float) and not raw_id.is_integer()
+        ):
+            return
+        requested_id = int(raw_id)
+    except (TypeError, ValueError):
+        return
+    current_id = version.get("docente_responsable_id")
+    if requested_id != current_id and not has_role(actor, "manager"):
+        raise ApiError(
+            403,
+            "FORBIDDEN",
+            "Solo un gestor de programas puede cambiar al docente responsable.",
+        )
+
+
 def update_version(session: Session, actor: Actor, version_id: int, body: dict, section: str | None = None):
     """Guarda cambios en una versión editable y registra quién los hizo.
 
@@ -689,11 +716,11 @@ def update_version(session: Session, actor: Actor, version_id: int, body: dict, 
     with session.begin():
         set_database_actor(session, actor)
         row = _require_version(session, version_id, lock=True)
-        if actor.id != row.get("docente_responsable_id") and "coordinator" not in actor.roles:
+        if actor.id != row.get("docente_responsable_id") and not has_role(actor, "manager"):
             raise ApiError(
                 403,
                 "FORBIDDEN",
-                "Solo el autor de la versión o coordinación pueden editarla.",
+                "Solo un gestor de programas o el docente responsable puede editarla.",
             )
         editable(row["estado_codigo"])
         if section:
@@ -705,6 +732,8 @@ def update_version(session: Session, actor: Actor, version_id: int, body: dict, 
             content = body.get("contenido")
             if not isinstance(content, (dict, list)):
                 raise ApiError(422, "VALIDATION_ERROR", "El contenido debe ser un objeto o una lista.", {"contenido": "Formato no válido."})
+            if section == "responsables" and isinstance(content, dict):
+                _require_manager_for_responsible_change(actor, row, content)
             _save_section(
                 session,
                 version_id,
@@ -720,6 +749,12 @@ def update_version(session: Session, actor: Actor, version_id: int, body: dict, 
             if "secciones" in body:
                 _validate_sections(body["secciones"])
                 for name, value in body["secciones"].items():
+                    if name == "responsables":
+                        _require_manager_for_responsible_change(
+                            actor,
+                            row,
+                            value["contenido"],
+                        )
                     _save_section(
                         session,
                         version_id,

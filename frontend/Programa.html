@@ -82,8 +82,16 @@
               <input
                 type="text"
                 id="instructor"
-                placeholder="Escriba el nombre del docente"
+                placeholder="Se carga desde el usuario responsable"
+                readonly
               />
+            </div>
+
+            <div class="field">
+              <label for="instructor-id">ID del docente responsable en G1</label>
+
+              <input type="number" id="instructor-id" min="1" step="1" disabled />
+              <small>Debe tener asignación activa al mismo curso, período y sede.</small>
             </div>
 
             <div class="field">

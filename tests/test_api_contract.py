@@ -281,11 +281,21 @@ class ApiContractTests(unittest.TestCase):
             apellidos="Auditora",
             roles=[SimpleNamespace(codigo="auditor")],
         )
+        admin = SimpleNamespace(
+            id=1,
+            nombres="Ana",
+            apellidos="Administradora",
+            roles=[SimpleNamespace(codigo="admin")],
+        )
+        users = {"auditor-token": auditor, "admin-token": admin}
 
         async def g2_user(request: Request):
-            if request.headers.get("authorization") != "Bearer auditor-token":
+            authorization = request.headers.get("authorization", "")
+            token = authorization.removeprefix("Bearer ")
+            user = users.get(token)
+            if user is None:
                 raise ApiError(401, "UNAUTHENTICATED", "Token de prueba inválido.")
-            return auditor
+            return user
 
         def test_session():
             yield Mock()
@@ -329,7 +339,71 @@ class ApiContractTests(unittest.TestCase):
         self.assertEqual(body["error"]["code"], "FORBIDDEN")
         create_program_mock.assert_not_called()
 
-    def test_version_editing_is_limited_to_owner_or_coordinator_over_http(self):
+    def test_admin_with_g1_programs_manage_can_create_programs_over_http(self):
+        app = FastAPI()
+        registrar_errores(app)
+        app.include_router(router)
+        admin = SimpleNamespace(
+            id=1,
+            nombres="Ana",
+            apellidos="Administradora",
+            roles=[SimpleNamespace(codigo="admin")],
+        )
+
+        async def g2_user(request: Request):
+            if request.headers.get("authorization") != "Bearer admin-token":
+                raise ApiError(401, "UNAUTHENTICATED", "Token de prueba inválido.")
+            return admin
+
+        def test_session():
+            yield Mock()
+
+        app.dependency_overrides[g5_auth.obtener_usuario_actual] = g2_user
+        app.dependency_overrides[get_session] = test_session
+
+        with patch(
+            "g5_programas.router.repository.create_program",
+            return_value={"programa": {"id": 8}, "version": {"id": 41}},
+        ) as create_program_mock, patch(
+            "g5_programas.router.repository.create_version",
+            return_value={"id": 42, "numero_version": 2},
+        ) as create_version_mock:
+            status, body = _asgi_request(
+                app,
+                "POST",
+                "/api/v1/course-programs",
+                headers=[
+                    (b"authorization", b"Bearer admin-token"),
+                    (b"content-type", b"application/json"),
+                ],
+                body=json.dumps({
+                    "curso_id": 1,
+                    "sede_id": 1,
+                    "modalidad_id": 1,
+                    "periodo_id": 1,
+                }).encode(),
+            )
+
+            self.assertEqual(status, 201)
+            self.assertEqual(body["programa"]["id"], 8)
+            create_program_mock.assert_called_once()
+
+            status, body = _asgi_request(
+                app,
+                "POST",
+                "/api/v1/course-programs/8/versions",
+                headers=[
+                    (b"authorization", b"Bearer admin-token"),
+                    (b"content-type", b"application/json"),
+                ],
+                body=b'{"periodo_id":2}',
+            )
+
+        self.assertEqual(status, 201)
+        self.assertEqual(body["numero_version"], 2)
+        create_version_mock.assert_called_once()
+
+    def test_version_editing_is_limited_to_owner_or_program_manager_over_http(self):
         app = FastAPI()
         registrar_errores(app)
         app.include_router(router)
@@ -345,6 +419,10 @@ class ApiContractTests(unittest.TestCase):
             "coordinator": SimpleNamespace(
                 id=3, nombres="Coordinador", apellidos="",
                 roles=[SimpleNamespace(codigo="coordinator")],
+            ),
+            "admin": SimpleNamespace(
+                id=4, nombres="Ana", apellidos="Administradora",
+                roles=[SimpleNamespace(codigo="admin")],
             ),
         }
 
@@ -395,8 +473,30 @@ class ApiContractTests(unittest.TestCase):
             status, response = _asgi_request(
                 app,
                 "PUT",
+                "/api/v1/program-versions/41/sections/responsables",
+                headers=request_headers + [(b"authorization", b"Bearer teacher-one")],
+                body=b'{"contenido":{"docente_responsable_id":2}}',
+            )
+            self.assertEqual(status, 403)
+            self.assertEqual(response["error"]["code"], "FORBIDDEN")
+            save_section.assert_not_called()
+
+            status, response = _asgi_request(
+                app,
+                "PUT",
                 "/api/v1/program-versions/41/sections/descripcion",
                 headers=request_headers + [(b"authorization", b"Bearer teacher-one")],
+                body=body,
+            )
+            self.assertEqual(status, 200)
+            save_section.assert_called_once()
+
+            save_section.reset_mock()
+            status, response = _asgi_request(
+                app,
+                "PUT",
+                "/api/v1/program-versions/41/sections/descripcion",
+                headers=request_headers + [(b"authorization", b"Bearer admin")],
                 body=body,
             )
             self.assertEqual(status, 200)

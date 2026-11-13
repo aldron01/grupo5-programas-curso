@@ -29,10 +29,11 @@ El selector se llena con los roles de la cuenta autenticada en G2. Solo cambia
 la vista de trabajo; el backend vuelve a validar los permisos en cada ruta.
 G5 usa únicamente los códigos oficiales de G1: `admin`, `coordinator`,
 `teacher`, `reviewer`, `authority` y `auditor`. Según el seed vigente,
-`coordinator` y `reviewer` tienen permiso de gestión; solo `reviewer` tiene
-permiso de revisión; `authority` autoriza. En las rutas de edición, el backend
-permite al autor asignado editar su propia versión y a `coordinator` editar
-cualquiera; un usuario distinto recibe 403.
+`admin`, `coordinator` y `reviewer` tienen permiso de gestión; solo `reviewer`
+tiene permiso de revisión; `authority` autoriza. Los gestores pueden crear y
+editar borradores; además, el docente asignado puede editar su propia versión.
+Un usuario sin esos permisos ni asignación recibe 403. El envío a revisión
+sigue reservado a `coordinator` y `reviewer`.
 
 ## Flujo que debe validar QA
 
@@ -81,11 +82,11 @@ inmutable; una nueva versión se crea como borrador clonado.
 - [ ] Probar una petición autenticada con el token de G2. Confirmar que
       el usuario y sus roles llegan desde `obtener_usuario_actual`, no desde
       el selector del navegador.
-- [ ] Comprobar la matriz de permisos G1: coordinación/revisión gestionan,
-      `reviewer` revisa y aprueba, `authority` autoriza; no permitir edición
-      de versiones ajenas.
-- [ ] Verificar que solo el autor asignado o `coordinator` pueda editar una
-      versión; otro docente debe recibir 403.
+- [ ] Comprobar la matriz de permisos G1: `admin`, coordinación y revisión
+      gestionan borradores; `reviewer` revisa y aprueba; `authority` autoriza.
+- [ ] Verificar que `admin`, `coordinator` y `reviewer` puedan gestionar
+      borradores; el docente asignado puede editar su versión, pero otro
+      docente y `auditor` reciben 403.
 - [ ] En Swagger, confirmar que los cuerpos de creación, nueva versión,
       encabezado y transiciones muestren sus campos en lugar de un objeto
       genérico.

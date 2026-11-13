@@ -79,6 +79,7 @@ class ProgramFlowTests(unittest.TestCase):
 
         coordinator = Actor(id=13, name="Coordinación", roles=frozenset({"coordinator"}))
         require_role(coordinator, "author")
+        require_role(coordinator, "manager")
         require_role(coordinator, "coordinator")
         with self.assertRaises(ApiError) as caught:
             require_role(coordinator, "reviewer")
@@ -86,7 +87,14 @@ class ProgramFlowTests(unittest.TestCase):
 
         reviewer = Actor(id=14, name="Revisor", roles=frozenset({"reviewer"}))
         require_role(reviewer, "author")
+        require_role(reviewer, "manager")
         require_role(reviewer, "reviewer")
+
+        admin = Actor(id=1, name="Administradora", roles=frozenset({"admin"}))
+        require_role(admin, "manager")
+        with self.assertRaises(ApiError) as caught:
+            require_role(admin, "author")
+        self.assertEqual(caught.exception.status, 403)
 
         authority = Actor(id=15, name="Dirección", roles=frozenset({"authority"}))
         require_role(authority, "authority")

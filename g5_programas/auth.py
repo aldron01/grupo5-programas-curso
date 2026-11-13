@@ -83,6 +83,7 @@ async def authenticated_actor(
 
 ROLE_CODES = {
     "reader": frozenset({"admin", "coordinator", "teacher", "reviewer", "authority", "auditor"}),
+    "manager": frozenset({"admin", "coordinator", "reviewer"}),
     "author": frozenset({"coordinator", "reviewer"}),
     "coordinator": frozenset({"coordinator"}),
     "reviewer": frozenset({"reviewer"}),
@@ -90,7 +91,12 @@ ROLE_CODES = {
 }
 
 
+def has_role(actor: Actor, role: str) -> bool:
+    """Indica si el usuario autenticado tiene uno de los códigos requeridos."""
+    return bool(actor.roles.intersection(ROLE_CODES[role]))
+
+
 def require_role(actor: Actor, role: str) -> None:
     """Comprueba que el usuario tenga el rol necesario para esta acción."""
-    if not actor.roles.intersection(ROLE_CODES[role]):
+    if not has_role(actor, role):
         raise ApiError(403, "FORBIDDEN", "No tienes permiso para realizar esta acción.")

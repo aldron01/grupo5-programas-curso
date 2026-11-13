@@ -65,8 +65,8 @@ def list_course_programs(
 
 @router.post("/course-programs", status_code=201)
 def post_course_program(body: ProgramaNuevo, session: DbSession, actor: CurrentActor):
-    """Crea un programa con su primer borrador; lo puede hacer un autor."""
-    require_role(actor, "author")
+    """Crea un programa con su primer borrador; requiere gestión de programas."""
+    require_role(actor, "manager")
     return repository.create_program(session, actor, body.model_dump(exclude_unset=True))
 
 
@@ -79,8 +79,8 @@ def course_program(program_id: int, session: DbSession, actor: CurrentActor):
 
 @router.post("/course-programs/{program_id}/versions", status_code=201)
 def post_version(program_id: int, body: VersionNueva, session: DbSession, actor: CurrentActor):
-    """Abre otra versión copiando una autorizada; lo puede hacer coordinación."""
-    require_role(actor, "coordinator")
+    """Abre otra versión copiando una autorizada; requiere gestión de programas."""
+    require_role(actor, "manager")
     return repository.create_version(session, actor, program_id, body.model_dump(exclude_unset=True))
 
 
