@@ -20,8 +20,8 @@ y el [`CONTRATO_COMUN.md`](https://github.com/jonnyverasdl-cloud/UDV_Proyecto/bl
   define un proveedor alternativo que responde 503. Verificar que este sea el
   comportamiento esperado al ejecutar G5 fuera de la aplicación compartida.
 - **Dependencias:** `requirements.txt` fija las versiones oficiales de
-  FastAPI, Uvicorn, SQLAlchemy, PyMySQL, cryptography, ReportLab y pytest. No
-  usar rangos de versiones.
+  FastAPI, Pydantic, Uvicorn, SQLAlchemy, PyMySQL, cryptography, ReportLab y
+  pytest. No usar rangos de versiones.
 - **Documentación:** arquitectura, flujo y criterios de revisión se mantienen
   en el README y esta guía.
 
@@ -30,7 +30,9 @@ la vista de trabajo; el backend vuelve a validar los permisos en cada ruta.
 G5 usa únicamente los códigos oficiales de G1: `admin`, `coordinator`,
 `teacher`, `reviewer`, `authority` y `auditor`. Según el seed vigente,
 `coordinator` y `reviewer` tienen permiso de gestión; solo `reviewer` tiene
-permiso de revisión; `authority` autoriza; los demás roles consultan.
+permiso de revisión; `authority` autoriza. En las rutas de edición, el backend
+permite al autor asignado editar su propia versión y a `coordinator` editar
+cualquiera; un usuario distinto recibe 403.
 
 ## Flujo que debe validar QA
 
@@ -80,8 +82,25 @@ inmutable; una nueva versión se crea como borrador clonado.
       el usuario y sus roles llegan desde `obtener_usuario_actual`, no desde
       el selector del navegador.
 - [ ] Comprobar la matriz de permisos G1: coordinación/revisión gestionan,
-      `reviewer` revisa y aprueba, `authority` autoriza, y los roles restantes
-      no pueden mutar programas.
+      `reviewer` revisa y aprueba, `authority` autoriza; no permitir edición
+      de versiones ajenas.
+- [ ] Verificar que solo el autor asignado o `coordinator` pueda editar una
+      versión; otro docente debe recibir 403.
+- [ ] En Swagger, confirmar que los cuerpos de creación, nueva versión,
+      encabezado y transiciones muestren sus campos en lugar de un objeto
+      genérico.
+- [ ] En `PUT /program-versions/{id}/sections/evaluacion`, probar una lista
+      como `[{"nombre":"Parcial 1","ponderacion":30,"semana":5}]`; una
+      actividad sin `nombre` o `ponderacion` debe recibir 422 sin borrar las
+      filas de evaluación existentes.
+- [ ] Crear un programa del mismo curso/sede/modalidad en otro período y
+      confirmar que recibe el siguiente número de versión sin conflicto de
+      unicidad de G1.
+- [ ] Asignar `docente_responsable_id` en la creación o sección
+      `responsables`; confirmar que el usuario esté activo en
+      `docente_curso` para ese curso, período y sede. Si coordinación crea el
+      programa sin indicar docente, confirmar que no queda asignada como
+      docente responsable.
 
 ### Permisos, validación y errores
 

@@ -69,13 +69,18 @@ integración con el mecanismo compartido de eventos.
   edición hasta una devolución.
 - La autorización usa exclusivamente códigos oficiales de rol de G1. Según
   su seed, `coordinator` y `reviewer` gestionan programas, `reviewer` revisa
-  y `authority` autoriza; `admin`, `teacher` y `auditor` tienen consulta.
+  y `authority` autoriza. Un usuario solo puede editar una versión si es su
+  autor asignado o tiene el rol `coordinator`; `admin`, `teacher` y `auditor`
+  no pueden editar versiones ajenas.
 - Solo UNA versión autorizada y vigente por curso/sede/período.
 - Una versión autorizada es INMUTABLE: los cambios van en un borrador nuevo
   (clonación), jamás editando la vigente.
 - Autorizar una versión nueva marca la anterior como `superseded`; no la
   elimina y sigue consultable.
 - El número de versión lo asigna el servidor dentro de una transacción.
+- El docente responsable debe tener una asignación activa en `docente_curso`
+  para el mismo curso, período y sede. Crear un programa desde coordinación
+  sin indicar docente no asigna automáticamente a coordinación como docente.
 - Guardar una sección no sobrescribe las demás; las filas mantienen su orden.
 - La suma de ponderaciones de evaluación se valida (100%) cuando ese sea el
   esquema.
@@ -106,3 +111,4 @@ integración con el mecanismo compartido de eventos.
 |---|---|---|---|
 | 2026-09-26 | Versión inicial | — | PM |
 | 2026-09-28 | Jerarquía de fuentes; prefijo `/api/v1`; tabla de endpoints completada con las rutas del .docx; **nuevo** `POST /program-versions/{id}/review` (el estado `under_review` no tenía acción); tabla de transiciones de programa; evento requerido; reglas de versionado del .docx que faltaban; checklist con pruebas y OpenAPI | PM | PM |
+| 2026-11-12 | Se precisa que la edición requiere ser autor asignado o `coordinator`; se documentan los cuerpos de evaluación en Swagger y la numeración única de versiones por programa | QA de integración | PM |

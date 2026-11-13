@@ -1,6 +1,7 @@
 import asyncio
 import json
 import unittest
+from contextlib import nullcontext
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
@@ -9,7 +10,14 @@ from fastapi import FastAPI, HTTPException, Request
 from g5_programas import auth as g5_auth
 from g5_programas.database import get_session
 from g5_programas.errors import ApiError, registrar_errores
-from g5_programas.repository import _assignment_origin_id, list_programs
+from g5_programas import repository
+from g5_programas.repository import (
+    _assignment_origin_id,
+    _save_section,
+    _validate_evaluations,
+    _validate_responsible_teacher,
+    list_programs,
+)
 from g5_programas.router import router
 
 
@@ -309,12 +317,342 @@ class ApiContractTests(unittest.TestCase):
                     (b"authorization", b"Bearer auditor-token"),
                     (b"content-type", b"application/json"),
                 ],
-                body=b"{}",
+                body=json.dumps({
+                    "curso_id": 1,
+                    "sede_id": 1,
+                    "modalidad_id": 1,
+                    "periodo_id": 1,
+                }).encode(),
             )
 
         self.assertEqual(status, 403)
         self.assertEqual(body["error"]["code"], "FORBIDDEN")
         create_program_mock.assert_not_called()
+
+    def test_version_editing_is_limited_to_owner_or_coordinator_over_http(self):
+        app = FastAPI()
+        registrar_errores(app)
+        app.include_router(router)
+        users = {
+            "teacher-one": SimpleNamespace(
+                id=1, nombres="Uno", apellidos="Docente",
+                roles=[SimpleNamespace(codigo="teacher")],
+            ),
+            "teacher-two": SimpleNamespace(
+                id=2, nombres="Dos", apellidos="Docente",
+                roles=[SimpleNamespace(codigo="teacher")],
+            ),
+            "coordinator": SimpleNamespace(
+                id=3, nombres="Coordinador", apellidos="",
+                roles=[SimpleNamespace(codigo="coordinator")],
+            ),
+        }
+
+        async def g2_user(request: Request):
+            authorization = request.headers.get("authorization", "")
+            token = authorization.removeprefix("Bearer ")
+            user = users.get(token)
+            if user is None:
+                raise ApiError(401, "UNAUTHENTICATED", "Token de prueba inválido.")
+            return user
+
+        session = Mock()
+        session.begin.return_value = nullcontext()
+
+        def test_session():
+            yield session
+
+        app.dependency_overrides[g5_auth.obtener_usuario_actual] = g2_user
+        app.dependency_overrides[get_session] = test_session
+        version_row = {
+            "id": 41,
+            "estado_codigo": "draft",
+            "docente_responsable_id": 1,
+        }
+
+        with patch("g5_programas.repository.set_database_actor"), patch(
+            "g5_programas.repository._require_version",
+            return_value=version_row,
+        ), patch("g5_programas.repository._save_section") as save_section, patch(
+            "g5_programas.repository._serialize_version",
+            return_value={"id": 41, "estado": "draft"},
+        ):
+            request_headers = [
+                (b"content-type", b"application/json"),
+            ]
+            body = b'{"contenido":{"texto":"Actualizado"}}'
+            status, response = _asgi_request(
+                app,
+                "PUT",
+                "/api/v1/program-versions/41/sections/descripcion",
+                headers=request_headers + [(b"authorization", b"Bearer teacher-two")],
+                body=body,
+            )
+            self.assertEqual(status, 403)
+            self.assertEqual(response["error"]["code"], "FORBIDDEN")
+            save_section.assert_not_called()
+
+            status, response = _asgi_request(
+                app,
+                "PUT",
+                "/api/v1/program-versions/41/sections/descripcion",
+                headers=request_headers + [(b"authorization", b"Bearer teacher-one")],
+                body=body,
+            )
+            self.assertEqual(status, 200)
+            save_section.assert_called_once()
+
+            save_section.reset_mock()
+            status, response = _asgi_request(
+                app,
+                "PUT",
+                "/api/v1/program-versions/41/sections/descripcion",
+                headers=request_headers + [(b"authorization", b"Bearer coordinator")],
+                body=body,
+            )
+            self.assertEqual(status, 200)
+            save_section.assert_called_once()
+
+    def test_openapi_documents_typed_request_bodies_and_evaluation_example(self):
+        app = FastAPI()
+        app.include_router(router)
+        spec = app.openapi()
+
+        def request_schema(path, method):
+            schema = spec["paths"][path][method]["requestBody"]["content"][
+                "application/json"
+            ]["schema"]
+            reference = schema.get("$ref")
+            if reference is None:
+                reference = next(option["$ref"] for option in schema["anyOf"] if "$ref" in option)
+            return spec["components"]["schemas"][reference.rsplit("/", 1)[-1]]
+
+        program = request_schema("/api/v1/course-programs", "post")
+        self.assertTrue({"curso_id", "sede_id", "modalidad_id", "periodo_id"} <= set(program["required"]))
+        self.assertIn("docente_responsable_id", program["properties"])
+        version = request_schema("/api/v1/course-programs/{program_id}/versions", "post")
+        self.assertIn("periodo_id", version["required"])
+        header = request_schema("/api/v1/program-versions/{version_id}", "put")
+        self.assertIn("resumen_cambios", header["properties"])
+        transition = request_schema("/api/v1/program-versions/{version_id}/authorize", "post")
+        self.assertIn("comentario", transition["properties"])
+
+        evaluation = request_schema(
+            "/api/v1/program-versions/{version_id}/sections/evaluacion",
+            "put",
+        )
+        content_schema = evaluation["properties"]["contenido"]
+        list_variant = next(
+            option for option in content_schema["anyOf"] if option.get("type") == "array"
+        )
+        evaluation_item = list_variant["items"]
+        if "$ref" in evaluation_item:
+            evaluation_item = spec["components"]["schemas"][
+                evaluation_item["$ref"].rsplit("/", 1)[-1]
+            ]
+        self.assertIn("nombre", evaluation_item["properties"])
+        self.assertIn("ponderacion", evaluation_item["properties"])
+        self.assertEqual(evaluation_item["required"], ["nombre", "ponderacion"])
+        self.assertIn(
+            {"nombre": "Parcial 1", "ponderacion": 30, "semana": 5},
+            content_schema["examples"][0],
+        )
+        responsables = request_schema(
+            "/api/v1/program-versions/{version_id}/sections/responsables",
+            "put",
+        )
+        responsables_content = responsables["properties"]["contenido"]
+        if "$ref" in responsables_content:
+            responsables_content = spec["components"]["schemas"][
+                responsables_content["$ref"].rsplit("/", 1)[-1]
+            ]
+        self.assertIn("docente_responsable_id", responsables_content["properties"])
+
+    def test_responsables_display_update_does_not_replace_assigned_teacher(self):
+        session = Mock()
+
+        _save_section(
+            session,
+            41,
+            "responsables",
+            {"docente": "Docente asignado", "coordinador": "Coordinación"},
+            actor_id=3,
+            responsible_context={"curso_id": 1, "periodo_id": 2, "sede_id": 1},
+        )
+
+        session.execute.assert_not_called()
+
+    def test_responsables_assignment_requires_active_g1_course_assignment(self):
+        session = Mock()
+        context = {"curso_id": 1, "periodo_id": 2, "sede_id": 1}
+
+        with patch("g5_programas.repository._one", return_value={"usuario_id": 8}) as find_assignment:
+            _save_section(
+                session,
+                41,
+                "responsables",
+                {"docente_responsable_id": 8},
+                actor_id=3,
+                responsible_context=context,
+            )
+
+        query, params = find_assignment.call_args.args[1:]
+        self.assertIn("FROM docente_curso", query)
+        self.assertIn("activo = 1", query)
+        self.assertEqual(params, {
+            "teacher_id": 8,
+            "course_id": 1,
+            "period_id": 2,
+            "campus_id": 1,
+        })
+        self.assertEqual(
+            session.execute.call_args.args[1],
+            {"responsible_id": 8, "id": 41},
+        )
+
+        with patch("g5_programas.repository._one", return_value=None):
+            with self.assertRaises(ApiError) as caught:
+                _validate_responsible_teacher(session, 99, 1, 2, 1)
+        self.assertEqual(caught.exception.status, 422)
+        self.assertIn("docente_responsable_id", caught.exception.details)
+
+    def test_evaluation_list_missing_fields_returns_field_validation_error(self):
+        with self.assertRaises(ApiError) as caught:
+            _validate_evaluations([{"actividad": "Parcial 1"}])
+
+        self.assertEqual(caught.exception.status, 422)
+        self.assertEqual(
+            caught.exception.details,
+            {
+                "evaluacion[0].nombre": "Campo obligatorio.",
+                "evaluacion[0].ponderacion": "Campo obligatorio y numérico.",
+            },
+        )
+
+    def test_invalid_evaluation_list_is_rejected_before_deleting_existing_rows(self):
+        session = Mock()
+        with self.assertRaises(ApiError) as caught:
+            _save_section(session, 41, "evaluacion", [{"actividad": "Parcial 1"}])
+
+        self.assertEqual(caught.exception.status, 422)
+        session.execute.assert_not_called()
+
+    def test_program_version_number_increments_across_periods(self):
+        session = Mock()
+        session.begin.return_value = nullcontext()
+        period_result = Mock()
+        period_result.scalar_one.return_value = None
+        next_number_result = Mock()
+        next_number_result.scalar_one.return_value = 5
+        insert_result = Mock()
+        insert_result.lastrowid = 92
+        session.execute.side_effect = [period_result, next_number_result, insert_result]
+        actor = g5_auth.Actor(id=3, name="Coordinador", roles=frozenset({"coordinator"}))
+
+        with patch.object(repository, "set_database_actor"), patch.object(
+            repository, "_one", return_value={"id": 8}
+        ), patch.object(
+            repository, "_require_version", return_value={"id": 92}
+        ), patch.object(
+            repository, "_serialize_version", return_value={"id": 92, "numero_version": 5}
+        ), patch.object(
+            repository, "_program_row", return_value={"id": 8}
+        ):
+            result = repository.create_program(
+                session,
+                actor,
+                {
+                    "curso_id": 1,
+                    "sede_id": 1,
+                    "modalidad_id": 1,
+                    "periodo_id": 2,
+                },
+            )
+
+        self.assertEqual(result["version"]["numero_version"], 5)
+        insert_sql = str(session.execute.call_args_list[2].args[0])
+        self.assertIn("VALUES (:program_id, :number, :period_id, 'draft'", insert_sql)
+        self.assertEqual(session.execute.call_args_list[2].args[1]["number"], 5)
+        self.assertIsNone(session.execute.call_args_list[2].args[1]["teacher"])
+
+    def test_program_creation_uses_requested_assigned_teacher(self):
+        session = Mock()
+        session.begin.return_value = nullcontext()
+        period_result = Mock()
+        period_result.scalar_one.return_value = None
+        next_number_result = Mock()
+        next_number_result.scalar_one.return_value = 5
+        insert_result = Mock()
+        insert_result.lastrowid = 92
+        session.execute.side_effect = [period_result, next_number_result, insert_result]
+        actor = g5_auth.Actor(id=3, name="Coordinador", roles=frozenset({"coordinator"}))
+
+        with patch.object(repository, "set_database_actor"), patch.object(
+            repository, "_one", return_value={"id": 8}
+        ), patch.object(
+            repository,
+            "_validate_responsible_teacher",
+            return_value=44,
+        ) as validate_teacher, patch.object(
+            repository, "_require_version", return_value={"id": 92}
+        ), patch.object(
+            repository, "_serialize_version", return_value={"id": 92, "numero_version": 5}
+        ), patch.object(
+            repository, "_program_row", return_value={"id": 8}
+        ):
+            repository.create_program(
+                session,
+                actor,
+                {
+                    "curso_id": 1,
+                    "sede_id": 1,
+                    "modalidad_id": 1,
+                    "periodo_id": 2,
+                    "docente_responsable_id": 44,
+                },
+            )
+
+        validate_teacher.assert_called_once_with(session, 44, 1, 2, 1)
+        self.assertEqual(session.execute.call_args_list[2].args[1]["teacher"], 44)
+
+    def test_cloned_version_uses_program_wide_number_and_preserves_owner(self):
+        session = Mock()
+        session.begin.return_value = nullcontext()
+        latest_result = Mock()
+        latest_result.scalar_one.return_value = 4
+        insert_result = Mock()
+        insert_result.lastrowid = 92
+        session.execute.side_effect = [latest_result, insert_result]
+        actor = g5_auth.Actor(id=3, name="Coordinador", roles=frozenset({"coordinator"}))
+        source = {
+            "id": 80,
+            "nombre": "Programa de curso",
+            "docente_responsable_id": 1,
+        }
+
+        with patch.object(repository, "set_database_actor"), patch.object(
+            repository, "_program_row", return_value={"id": 8, "asignatura": "Curso"}
+        ), patch.object(
+            repository, "_one", return_value=source
+        ), patch.object(
+            repository, "_load_sections", return_value={}
+        ), patch.object(
+            repository, "_require_version", return_value={"id": 92}
+        ), patch.object(
+            repository, "_serialize_version", return_value={"id": 92, "numero_version": 5}
+        ):
+            result = repository.create_version(
+                session,
+                actor,
+                8,
+                {"periodo_id": 2},
+            )
+
+        self.assertEqual(result["numero_version"], 5)
+        insert_sql = str(session.execute.call_args_list[1].args[0])
+        self.assertIn("docente_responsable_id", insert_sql)
+        self.assertEqual(session.execute.call_args_list[1].args[1]["number"], 5)
+        self.assertEqual(session.execute.call_args_list[1].args[1]["responsible_id"], 1)
 
 
 if __name__ == "__main__":

@@ -21,6 +21,7 @@ grupo-5-programas-pdf/
 │   ├── pdf.py              # Adaptador del generador de PDF
 │   ├── pdf_service.py      # Construcción del documento con ReportLab
 │   ├── repository.py       # Consultas y operaciones sobre el esquema G1
+│   ├── schemas.py          # Esquemas Pydantic para Swagger y validación
 │   └── router.py           # Rutas bajo /api/v1
 ├── frontend/
 │   ├── Programa.html
@@ -45,8 +46,8 @@ grupo-5-programas-pdf/
 
 - Python 3.10 o posterior.
 - Las dependencias se fijan en `requirements.txt`: FastAPI 0.142.1,
-  Uvicorn 0.54.0, SQLAlchemy 2.1.1, PyMySQL 1.1.1, cryptography 44.0.2,
-  ReportLab 4.5.1 y pytest 9.1.1.
+  Pydantic 2.14.0, Uvicorn 0.54.0, SQLAlchemy 2.1.1, PyMySQL 1.1.1,
+  cryptography 44.0.2, ReportLab 4.5.1 y pytest 9.1.1.
 - Una base MySQL compatible con el esquema compartido de G1, incluyendo sus
   catálogos, tablas, vistas y procedimientos usados por el repositorio. La
   autorización utiliza `sp_autorizar_version`.
@@ -128,9 +129,24 @@ listado de programas para que el usuario seleccione uno, por lo que
 El selector presenta los códigos oficiales de G1: `admin`, `coordinator`,
 `teacher`, `reviewer`, `authority` y `auditor`. Conforme a los permisos del
 seed de G1, coordinación y revisión pueden gestionar borradores, `reviewer`
-puede revisar/aprobar, `authority` puede autorizar y los roles sin esos
-permisos quedan en consulta. El backend vuelve a validar cada operación.
+puede revisar/aprobar y `authority` puede autorizar. La pantalla limita la
+edición a coordinación y revisión; el backend además permite editar al autor
+asignado y bloquea a otros usuarios. Los demás accesos se validan en servidor.
 La pantalla usa los estilos comunes de `/udv-styles/udv.css`.
+
+Los cuerpos de escritura están descritos con modelos Pydantic para que
+Swagger muestre los campos de creación, versión, encabezado y transiciones.
+Al crear un programa o actualizar `responsables`, puede enviarse
+`docente_responsable_id`; G5 verifica que ese usuario tenga una asignación
+activa en `docente_curso` para el mismo curso, período y sede. Si no se indica
+un responsable al crear, coordinación no queda asignada automáticamente como
+docente. Un usuario con rol `teacher` solo se asigna a sí mismo si tiene esa
+asignación activa en G1.
+La edición de una versión se limita a su autor asignado o a `coordinator`.
+Las actividades de evaluación aceptan el formato del formulario o una lista
+de objetos con `nombre`, `ponderacion` y `semana`; las listas incompletas
+responden 422 sin borrar las filas existentes. El número de versión se asigna
+por programa y respeta la unicidad de G1 aunque cambie el período.
 
 Al crear una versión desde un trabajo de G3, el enlace puede incluir
 `&tarea_destinatario_origen_id=<id-de-asignacion>`. Si no se proporciona en
