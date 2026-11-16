@@ -128,6 +128,41 @@ def _validate_evaluations(content: list) -> None:
             )
 
 
+def _g5_metadata(description: str | None) -> dict:
+    if not isinstance(description, str) or not description:
+        return {}
+    if not description.startswith("G5:"):
+        return {"descripcion": description}
+    try:
+        metadata = json.loads(description[3:])
+    except json.JSONDecodeError:
+        return {"descripcion": description}
+    return metadata if isinstance(metadata, dict) else {}
+
+
+def _save_g5_metadata(session: Session, version_id: int, updates: dict) -> None:
+    row = _one(
+        session,
+        "SELECT descripcion FROM programa_version WHERE id = :id",
+        {"id": version_id},
+    )
+    metadata = _g5_metadata((row or {}).get("descripcion"))
+    if (
+        isinstance(metadata.get("responsables"), dict)
+        and isinstance(updates.get("responsables"), dict)
+    ):
+        metadata["responsables"].update(updates["responsables"])
+        updates = {key: value for key, value in updates.items() if key != "responsables"}
+    metadata.update(updates)
+    session.execute(
+        text("UPDATE programa_version SET descripcion = :descripcion WHERE id = :id"),
+        {
+            "descripcion": "G5:" + json.dumps(metadata, ensure_ascii=False),
+            "id": version_id,
+        },
+    )
+
+
 # Carga y guardado de las secciones del formulario.
 def _load_sections(session: Session, version: dict) -> dict:
     """Arma las secciones que muestra el formulario usando los datos guardados.
@@ -136,16 +171,10 @@ def _load_sections(session: Session, version: dict) -> dict:
     adaptan y también se recupera el contenido adicional que guarda G5.
     """
     version_id = version["id"]
-    description = version.get("descripcion") or ""
-    methodology = ""
-    if isinstance(description, str) and description.startswith("G5:"):
-        try:
-            encoded = json.loads(description[3:])
-        except json.JSONDecodeError:
-            encoded = {}
-        if isinstance(encoded, dict):
-            description = encoded.get("descripcion", "")
-            methodology = encoded.get("metodologia", "")
+    stored_description = version.get("descripcion") or ""
+    metadata = _g5_metadata(stored_description)
+    description = metadata.get("descripcion", stored_description)
+    methodology = metadata.get("metodologia", "")
     sections = {
         "general": _section({
             "codigo": version["curso_codigo"],
@@ -245,7 +274,14 @@ def _load_sections(session: Session, version: dict) -> dict:
            WHERE pv.id = :id""",
         {"id": version_id},
     ) or {}
-    sections["responsables"] = _section(people)
+    responsible_metadata = metadata.get("responsables", {})
+    if not isinstance(responsible_metadata, dict):
+        responsible_metadata = {}
+    sections["responsables"] = _section({
+        **people,
+        **responsible_metadata,
+        "docente": people.get("docente") or responsible_metadata.get("docente"),
+    })
     return json_value(sections)
 
 
@@ -316,43 +352,42 @@ def _save_section(
                 {**fields, "id": version_id},
             )
     elif section in {"descripcion", "metodologia"}:
-        row = _one(session, "SELECT descripcion FROM programa_version WHERE id = :id", {"id": version_id})
-        stored = (row or {}).get("descripcion") or ""
-        data = {}
-        if isinstance(stored, str) and stored.startswith("G5:"):
-            try:
-                parsed = json.loads(stored[3:])
-                if isinstance(parsed, dict):
-                    data = parsed
-            except json.JSONDecodeError:
-                data = {}
         key = "descripcion" if section == "descripcion" else "metodologia"
-        data[key] = content.get("texto", content.get(key, "")) if isinstance(content, dict) else ""
-        session.execute(
-            text("UPDATE programa_version SET descripcion = :descripcion WHERE id = :id"),
-            {"descripcion": "G5:" + json.dumps(data, ensure_ascii=False), "id": version_id},
+        _save_g5_metadata(
+            session,
+            version_id,
+            {key: content.get("texto", content.get(key, ""))},
         )
     elif section == "responsables":
         raw_responsible_id = content.get("docente_responsable_id")
-        if raw_responsible_id is None:
-            return
-        if responsible_context is None:
-            raise ApiError(
-                422,
-                "VALIDATION_ERROR",
-                "No se pudo validar el docente responsable para este programa.",
-                {"docente_responsable_id": "Falta el contexto del curso, período y sede."},
+        if raw_responsible_id is not None:
+            if responsible_context is None:
+                raise ApiError(
+                    422,
+                    "VALIDATION_ERROR",
+                    "No se pudo validar el docente responsable para este programa.",
+                    {"docente_responsable_id": "Falta el contexto del curso, período y sede."},
+                )
+            responsible_id = _validate_responsible_teacher(
+                session,
+                raw_responsible_id,
+                responsible_context["curso_id"],
+                responsible_context["periodo_id"],
+                responsible_context["sede_id"],
             )
-        responsible_id = _validate_responsible_teacher(
+            session.execute(
+                text("UPDATE programa_version SET docente_responsable_id = :responsible_id WHERE id = :id"),
+                {"responsible_id": responsible_id, "id": version_id},
+            )
+        responsible_fields = {
+            key: content[key]
+            for key in ("docente", "decanatura", "coordinador")
+            if key in content
+        }
+        _save_g5_metadata(
             session,
-            raw_responsible_id,
-            responsible_context["curso_id"],
-            responsible_context["periodo_id"],
-            responsible_context["sede_id"],
-        )
-        session.execute(
-            text("UPDATE programa_version SET docente_responsable_id = :responsible_id WHERE id = :id"),
-            {"responsible_id": responsible_id, "id": version_id},
+            version_id,
+            {"responsables": responsible_fields},
         )
     elif section == "competencias":
         if isinstance(content, dict):
@@ -606,25 +641,72 @@ def list_programs(
     return {"page": page, "per_page": per_page, "total": total, "data": json_value(rows)}
 
 
-def get_program(session: Session, program_id: int):
+def get_program(
+    session: Session,
+    program_id: int,
+    *,
+    docente_responsable_id: int | None = None,
+):
     """Trae los datos del programa y su historial de versiones."""
     program = _program_row(session, program_id)
     if not program:
         raise ApiError(404, "NOT_FOUND", "Programa no encontrado.")
+    owner_filter = (
+        " AND pv.docente_responsable_id = :docente_responsable_id"
+        if docente_responsable_id is not None
+        else ""
+    )
+    params = {"id": program_id}
+    if docente_responsable_id is not None:
+        params["docente_responsable_id"] = docente_responsable_id
     versions = _all(
         session,
-        MAIN_SELECT + " WHERE pv.programa_curso_id = :id ORDER BY pv.numero_version",
-        {"id": program_id},
+        MAIN_SELECT
+        + " WHERE pv.programa_curso_id = :id"
+        + owner_filter
+        + " ORDER BY pv.numero_version",
+        params,
     )
+    if docente_responsable_id is not None and not versions:
+        raise ApiError(404, "NOT_FOUND", "Programa no encontrado.")
+    if docente_responsable_id is not None:
+        owned_authorized = [
+            version for version in versions
+            if version["estado_codigo"] == "authorized"
+        ]
+        latest_owned = max(
+            owned_authorized,
+            key=lambda version: version["numero_version"],
+            default=None,
+        )
+        program["version_actual"] = (
+            latest_owned["numero_version"] if latest_owned else None
+        )
+        program["periodo_id"] = latest_owned["periodo_id"] if latest_owned else None
     return {
         "programa": json_value(program),
         "versiones": [_serialize_version(session, version) for version in versions],
     }
 
 
-def get_version(session: Session, version_id: int):
+def _require_version_owner(row: dict, docente_responsable_id: int | None) -> None:
+    if (
+        docente_responsable_id is not None
+        and row.get("docente_responsable_id") != docente_responsable_id
+    ):
+        raise ApiError(404, "NOT_FOUND", "Versión no encontrada.")
+
+
+def get_version(
+    session: Session,
+    version_id: int,
+    *,
+    docente_responsable_id: int | None = None,
+):
     """Trae una versión junto con el contenido de sus secciones."""
-    return _serialize_version(session, _require_version(session, version_id))
+    row = _require_version(session, version_id)
+    _require_version_owner(row, docente_responsable_id)
+    return _serialize_version(session, row)
 
 
 def _flatten(value, prefix=""):
@@ -642,20 +724,37 @@ def _flatten(value, prefix=""):
     return {prefix: value} if prefix else {}
 
 
-def get_changes(session: Session, version_id: int):
+def get_changes(
+    session: Session,
+    version_id: int,
+    *,
+    docente_responsable_id: int | None = None,
+):
     """Muestra qué cambió frente a la versión anterior."""
     current = _require_version(session, version_id)
+    _require_version_owner(current, docente_responsable_id)
+    owner_filter = (
+        " AND pv.docente_responsable_id = :docente_responsable_id"
+        if docente_responsable_id is not None
+        else ""
+    )
+    params = {
+        "program_id": current["programa_curso_id"],
+        "period_id": current["periodo_id"],
+        "number": current["numero_version"],
+    }
+    if docente_responsable_id is not None:
+        params["docente_responsable_id"] = docente_responsable_id
     previous = _one(
         session,
         MAIN_SELECT + """ WHERE pv.programa_curso_id = :program_id
                           AND pv.periodo_id = :period_id
                           AND pv.numero_version < :number
+                       """
+        + owner_filter
+        + """
                           ORDER BY pv.numero_version DESC LIMIT 1""",
-        {
-            "program_id": current["programa_curso_id"],
-            "period_id": current["periodo_id"],
-            "number": current["numero_version"],
-        },
+        params,
     )
     if previous is None:
         return {"version": current["id"], "version_anterior": None, "cambios": []}
@@ -815,7 +914,17 @@ def _validate_for_submit(session: Session, version_id: int, row: dict):
         raise ApiError(422, "VALIDATION_ERROR", "Completa los campos requeridos antes de enviar.", {field: "Campo obligatorio o inválido." for field in missing})
 
 
-def transition(session: Session, actor: Actor, version_id: int, action: str, comment: str | None = None):
+def transition(
+    session: Session,
+    actor: Actor,
+    version_id: int,
+    action: str,
+    comment: str | None = None,
+    *,
+    decanatura: str | None = None,
+    coordinador: str | None = None,
+    revisor: str | None = None,
+):
     """Cambia el estado de la versión cuando la acción está permitida.
 
     Antes de guardar el cambio, revisa el estado actual, el usuario y los datos
@@ -827,11 +936,49 @@ def transition(session: Session, actor: Actor, version_id: int, action: str, com
         current = row["estado_codigo"]
         new_status = next_status(action, current)
 
+        if action == "approve":
+            if actor.id in {
+                row.get("creado_por"),
+                row.get("docente_responsable_id"),
+            }:
+                raise ApiError(
+                    403,
+                    "FORBIDDEN",
+                    "Quien elaboró, es responsable o envió la versión no puede aprobarla.",
+                )
+            latest_submission = _one(
+                session,
+                """SELECT actor_id FROM programa_aprobacion
+                   WHERE programa_version_id = :id AND estado_nuevo = 'submitted'
+                   ORDER BY creado_en DESC, id DESC LIMIT 1""",
+                {"id": version_id},
+            )
+            if latest_submission and latest_submission.get("actor_id") == actor.id:
+                raise ApiError(
+                    403,
+                    "FORBIDDEN",
+                    "Quien elaboró, es responsable o envió la versión no puede aprobarla.",
+                )
+
         if action == "submit":
             _require_teacher_is_responsible(actor, row.get("docente_responsable_id"))
             _validate_for_submit(session, version_id, row)
         if action == "return" and not (comment and comment.strip()):
             raise ApiError(422, "VALIDATION_ERROR", "La devolución requiere una observación.", {"comentario": "Este campo es obligatorio."})
+
+        responsible_updates = {}
+        if action in {"return", "approve"} and coordinador and coordinador.strip():
+            responsible_updates["coordinador"] = coordinador.strip()
+        if action in {"return", "approve"} and revisor and revisor.strip():
+            responsible_updates["revisor"] = revisor.strip()
+        if action == "authorize" and decanatura and decanatura.strip():
+            responsible_updates["decanatura"] = decanatura.strip()
+        if responsible_updates:
+            _save_g5_metadata(
+                session,
+                version_id,
+                {"responsables": responsible_updates},
+            )
 
         if action == "authorize":
             authorized = _all(
@@ -881,9 +1028,14 @@ def transition(session: Session, actor: Actor, version_id: int, action: str, com
 
 
 # Preparación y generación de los datos del PDF autorizado.
-def _version_content_for_pdf(session: Session, version_id: int):
+def _version_content_for_pdf(
+    session: Session,
+    version_id: int,
+    docente_responsable_id: int | None = None,
+):
     """Busca los datos del programa y la aprobación que aparecerán en el PDF."""
     row = _require_version(session, version_id)
+    _require_version_owner(row, docente_responsable_id)
     if row["estado_codigo"] not in {"authorized", "superseded"}:
         raise ApiError(409, "CONFLICT", "El PDF solo se genera para versiones autorizadas.")
     if row["estado_codigo"] == "authorized" and _one(
@@ -912,7 +1064,16 @@ def generate_pdf_data(session: Session, version_id: int, actor: Actor):
     """Arma el PDF y calcula su huella para identificar el archivo generado."""
     from .pdf import build_pdf
 
-    program, version, approval = _version_content_for_pdf(session, version_id)
+    owner_id = (
+        actor.id
+        if "teacher" in actor.roles and not has_role(actor, "manager")
+        else None
+    )
+    program, version, approval = _version_content_for_pdf(
+        session,
+        version_id,
+        docente_responsable_id=owner_id,
+    )
     pdf = build_pdf(program, version, approval)
     return pdf, hashlib.sha256(pdf).hexdigest(), program, version
 

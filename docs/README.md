@@ -11,6 +11,7 @@ incluye un servidor FastAPI independiente ni un `main.py`.
 grupo-5-programas-pdf/
 ├── .env.example
 ├── .gitignore
+├── CONTRATO.md
 ├── requirements.txt
 ├── g5_programas/
 │   ├── __init__.py
@@ -35,11 +36,11 @@ grupo-5-programas-pdf/
 │   ├── conftest.py
 │   ├── test_api_contract.py
 │   ├── test_database.py
+│   ├── test_pdf.py
 │   └── test_program_flow.py
 └── docs/
     ├── README.md
     ├── instrucciones.md
-    └── CONTRATO.md
 ```
 
 ## Requisitos e integración
@@ -131,8 +132,10 @@ versiones asignadas al docente autenticado. El docente responsable elabora,
 edita y envía su propia versión; coordinación también puede elaborar y enviar.
 Coordinación y revisión pueden revisar, devolver y aprobar; `authority`
 autoriza. `admin`, coordinación y revisión pueden abrir versiones nuevas.
-El backend valida los códigos oficiales de G1 en cada operación.
-La pantalla usa los estilos comunes de `/udv-styles/udv.css`.
+Quien creó o envió una versión no puede aprobarla. Las consultas de un docente
+por ID se limitan a sus versiones. El backend valida los códigos oficiales de
+G1 en cada operación y la pantalla usa los estilos comunes de
+`/udv-styles/udv.css`.
 
 Los cuerpos de escritura están descritos con modelos Pydantic para que
 Swagger muestre los campos de creación, versión, encabezado y transiciones.
@@ -141,12 +144,23 @@ Al crear un programa o actualizar `responsables`, puede enviarse
 activa en `docente_curso` para el mismo curso, período y sede. Si no se indica
 un responsable al crear, coordinación no queda asignada automáticamente como
 docente. Un usuario con rol `teacher` solo se asigna a sí mismo si tiene esa
-asignación activa en G1.
-La edición de una versión se limita a su autor asignado o a `coordinator`.
+asignación activa en G1. Los nombres de docente, coordinación/revisión y
+Decanatura se guardan asociados a la versión para que sobrevivan a la recarga
+y estén disponibles en el PDF.
+La edición se permite a gestores (`admin`, `coordinator` y `reviewer`) y al
+docente responsable de su propia versión.
 Las actividades de evaluación aceptan el formato del formulario o una lista
 de objetos con `nombre`, `ponderacion` y `semana`; las listas incompletas
 responden 422 sin borrar las filas existentes. El número de versión se asigna
 por programa y respeta la unicidad de G1 aunque cambie el período.
+
+Las secciones que la API devuelve como listas (prerrequisitos, competencias,
+perfil, contenidos, bibliografía y evaluación) se conservan como listas en la
+pantalla y en las solicitudes. Las listas estructuradas se editan como JSON;
+un JSON inválido impide iniciar el guardado. Las secciones se guardan una por
+una: al fallar una, la pantalla informa cuál fue y no envía las siguientes;
+las que ya se guardaron antes del error no se revierten automáticamente.
+Los ejemplos son placeholders, no valores que se envían como datos.
 
 Al crear una versión desde un trabajo de G3, el enlace puede incluir
 `&tarea_destinatario_origen_id=<id-de-asignacion>`. Si no se proporciona en
@@ -166,5 +180,7 @@ integración en la aplicación host y una base MySQL local de prueba.
 
 ## Documentación
 
+- [Contrato G5](../CONTRATO.md): fuente vigente del contrato del módulo,
+  ubicada en la raíz del proyecto.
 - [Instrucciones para QA](instrucciones.md): contexto, cambios que revisar,
   pruebas y pendientes de integración.

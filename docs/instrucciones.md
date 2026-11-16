@@ -8,8 +8,8 @@ curso, versiones, revisión y autorización; es un router para la aplicación
 compartida, no un servidor independiente.
 
 Antes de aprobar la integración, comparar el resultado con
-[`CONTRATO.md` de G5](https://github.com/jonnyverasdl-cloud/UDV_Proyecto/blob/main/grupos/grupo-5-programas-pdf/CONTRATO.md)
-y el [`CONTRATO_COMUN.md`](https://github.com/jonnyverasdl-cloud/UDV_Proyecto/blob/main/CONTRATO_COMUN.md).
+el [contrato G5](../CONTRATO.md), ubicado en la raíz del proyecto, y el
+[`CONTRATO_COMUN.md`](https://github.com/jonnyverasdl-cloud/UDV_Proyecto/blob/main/CONTRATO_COMUN.md).
 
 ## Qué cambió en esta rama
 
@@ -22,8 +22,17 @@ y el [`CONTRATO_COMUN.md`](https://github.com/jonnyverasdl-cloud/UDV_Proyecto/bl
 - **Dependencias:** `requirements.txt` fija las versiones oficiales de
   FastAPI, Pydantic, Uvicorn, SQLAlchemy, PyMySQL, cryptography, ReportLab y
   pytest. No usar rangos de versiones.
-- **Documentación:** arquitectura, flujo y criterios de revisión se mantienen
-  en el README y esta guía.
+- **Documentación:** arquitectura y pruebas se describen en el README; las
+  reglas funcionales vigentes están en `../CONTRATO.md`.
+- **Edición y persistencia:** las secciones que la API representa como listas
+  se editan como listas JSON y se envían en esa misma forma. Los ejemplos son
+  placeholders y no se envían como datos. JSON inválido impide iniciar el
+  guardado. Si falla una sección, la pantalla informa cuál fue y detiene las
+  solicitudes siguientes; las secciones guardadas antes del error no se
+  revierten automáticamente.
+- **Responsables y PDF:** los datos de docente responsable, coordinación o
+  revisión, y Decanatura se conservan asociados a la versión. El PDF normaliza
+  entidades HTML como `&amp;` para mostrar `&`.
 
 El selector se llena con los roles de la cuenta autenticada en G2. Solo cambia
 la vista de trabajo; el backend vuelve a validar los permisos en cada ruta.
@@ -33,6 +42,8 @@ edita y envía su propia versión; coordinación también puede elaborar y envia
 Coordinación y revisión pueden revisar, devolver y aprobar; `authority`
 autoriza. `admin`, coordinación y revisión pueden abrir versiones nuevas. El
 backend valida los roles oficiales y restringe al docente a sus versiones.
+Quien creó o envió la versión, o figura como su docente responsable, no puede
+aprobarla. El detalle por ID también aplica el filtro de propiedad del docente.
 
 ## Flujo que debe validar QA
 
@@ -83,9 +94,13 @@ inmutable; una nueva versión se crea como borrador clonado.
       el selector del navegador.
 - [ ] Comprobar la matriz de roles: el docente asignado elabora, edita y envía
       su propia versión; coordinación y revisión aprueban; `authority` autoriza.
+- [ ] Intentar aprobar con la cuenta que creó la versión, que la envió o que
+      figura como docente responsable; debe responder 403 sin cambiar el estado.
 - [ ] Verificar que `admin`, `coordinator` y `reviewer` puedan gestionar
       borradores y abrir versiones; el docente asignado puede crear, editar y
       enviar su versión, pero otro docente y `auditor` reciben 403.
+- [ ] Como docente, consultar por ID un programa y una versión de otro docente;
+      deben responder 404. Coordinación y revisión pueden consultar todos.
 - [ ] En Swagger, confirmar que los cuerpos de creación, nueva versión,
       encabezado y transiciones muestren sus campos en lugar de un objeto
       genérico.
@@ -120,8 +135,18 @@ inmutable; una nueva versión se crea como borrador clonado.
 - [ ] Crear una versión desde una asignación G3 y confirmar que
       `tarea_destinatario_origen_id` se conserva en la versión creada.
 - [ ] Guardar una sección y comprobar que las demás secciones se conserven.
-- [ ] Confirmar que las filas dinámicas mantienen su orden tras guardar y
-      volver a cargar.
+- [ ] Confirmar que prerrequisitos, competencias, perfil, contenidos,
+      bibliografía y evaluación se muestran y guardan como listas, conservando
+      campos, elementos y orden después de recargar.
+- [ ] Introducir JSON inválido en una sección de lista; debe avisar y no iniciar
+      ninguna solicitud de guardado.
+- [ ] Forzar el fallo de una sección y confirmar que se informa cuál falló y
+      que no se envían las secciones siguientes. Las que ya se guardaron antes
+      del error pueden permanecer guardadas.
+- [ ] Dejar campos vacíos y verificar que los placeholders no se envían como
+      datos ni reemplazan información existente.
+- [ ] Guardar docente responsable, coordinación/revisión y Decanatura; recargar
+      la versión y verificar que los datos persisten y aparecen en el PDF.
 - [ ] Enviar incompleto o con ponderaciones distintas de 100: la API debe
       rechazarlo sin cambiar el estado.
 - [ ] Confirmar que las transiciones guarden actor, estado anterior, estado
@@ -143,5 +168,6 @@ La suite incluye pruebas HTTP de las rutas protegidas con encabezados Bearer y
 roles oficiales en el formato de usuario que entrega G2. El proveedor de
 identidad se sustituye por fixtures: estas pruebas verifican la autorización
 de G5, pero no validan un token JWT real ni sustituyen el login de G2. Tampoco
-prueban una conexión MySQL real ni la descarga del PDF; se requiere además
-validar la integración con la aplicación host y una base MySQL local de prueba.
+prueban una conexión MySQL real ni una descarga PDF de extremo a extremo; sí
+incluyen una prueba de normalización de entidades en el texto del PDF. Hace
+falta validar la integración con la aplicación host y una base MySQL local.

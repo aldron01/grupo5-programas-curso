@@ -207,6 +207,7 @@
                   <label for="level"> Nivel </label>
 
                   <select id="level">
+                    <option value="" selected disabled>Selecciona un nivel</option>
                     <option>Licenciatura</option>
 
                     <option>Técnico</option>
@@ -219,6 +220,7 @@
                   <label for="modality"> Modalidad </label>
 
                   <select id="modality">
+                    <option value="" selected disabled>Selecciona una modalidad</option>
                     <option>Presencial</option>
 
                     <option>Virtual</option>
@@ -251,7 +253,7 @@
             <div id="prerequisites" class="section">
               <h3>Prerrequisitos</h3>
 
-              <p>Asignaturas necesarias antes de cursar Programación Web.</p>
+              <p>Asignaturas necesarias antes de cursar esta asignatura.</p>
 
               <div class="table-container">
                 <table>
@@ -304,22 +306,11 @@
 
               <div class="form">
                 <div class="field full">
-                  <label for="general-competency"> Competencia general </label>
+                  <label for="competencies-data">Competencias (formato JSON)</label>
 
                   <textarea
-                    id="general-competency"
-                    placeholder="Desarrolla aplicaciones web funcionales utilizando buenas prácticas de programación."
-                  ></textarea>
-                </div>
-
-                <div class="field full">
-                  <label for="specific-competencies">
-                    Competencias específicas
-                  </label>
-
-                  <textarea
-                    id="specific-competencies"
-                    placeholder="Diseña APIs REST, utiliza bases de datos y desarrolla interfaces web."
+                    id="competencies-data"
+                    placeholder='[{"tipo":"general","descripcion":"Competencia general"},{"tipo":"especifica","descripcion":"Competencia específica"}]'
                   ></textarea>
                 </div>
               </div>
@@ -330,20 +321,13 @@
               <h3>Perfil de egreso</h3>
 
               <div class="form">
-                <div class="field">
-                  <label for="profile-code"> Código </label>
+                <div class="field full">
+                  <label for="profile-data">Perfiles de egreso (formato JSON)</label>
 
-                  <input type="text" id="profile-code" placeholder="PE-01" />
-                </div>
-
-                <div class="field">
-                  <label for="profile-contribution"> Contribución </label>
-
-                  <input
-                    type="text"
-                    id="profile-contribution"
-                    placeholder="Desarrollo de soluciones tecnológicas"
-                  />
+                  <textarea
+                    id="profile-data"
+                    placeholder='[{"perfil_egreso_id":1,"orden":1,"contribucion":"Contribución al perfil"}]'
+                  ></textarea>
                 </div>
               </div>
             </div>
@@ -370,11 +354,14 @@
 
               <div class="form">
                 <div class="field full">
-                  <label for="contents-text">
-                    Unidades y temas
+                  <label for="contents-data">
+                    Unidades y temas (formato JSON)
                   </label>
 
-                  <textarea id="contents-text"></textarea>
+                  <textarea
+                    id="contents-data"
+                    placeholder='[{"orden":1,"titulo":"Unidad 1","horas":8,"items":[{"item":"Tema 1","descripcion":"Descripción"}]}]'
+                  ></textarea>
                 </div>
               </div>
             </div>
@@ -385,11 +372,14 @@
 
               <div class="form">
                 <div class="field full">
-                  <label for="bibliography-text">
-                    Referencias bibliográficas
+                  <label for="bibliography-data">
+                    Referencias bibliográficas (formato JSON)
                   </label>
 
-                  <textarea id="bibliography-text"></textarea>
+                  <textarea
+                    id="bibliography-data"
+                    placeholder='[{"orden":1,"tipo":"basica","referencia":"Autor. Título","isbn":"","url":""}]'
+                  ></textarea>
                 </div>
               </div>
             </div>
@@ -399,22 +389,13 @@
               <h3>Evaluación</h3>
 
               <div class="form">
-                <div class="field">
-                  <label for="midterm-assessment"> Evaluación parcial </label>
+                <div class="field full">
+                  <label for="evaluation-data">Actividades de evaluación (formato JSON)</label>
 
-                  <input type="text" id="midterm-assessment" placeholder="30%" />
-                </div>
-
-                <div class="field">
-                  <label for="final-assessment"> Evaluación final </label>
-
-                  <input type="text" id="final-assessment" placeholder="40%" />
-                </div>
-
-                <div class="field">
-                  <label for="project-assessment"> Proyecto </label>
-
-                  <input type="text" id="project-assessment" placeholder="30%" />
+                  <textarea
+                    id="evaluation-data"
+                    placeholder='[{"orden":1,"nombre":"Parcial 1","descripcion":"","ponderacion":30,"semana":5}]'
+                  ></textarea>
                 </div>
               </div>
             </div>
