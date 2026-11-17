@@ -39,9 +39,12 @@ grupo-5-programas-pdf/
 │   ├── test_pdf.py
 │   └── test_program_flow.py
 └── docs/
-    ├── README.md
-    ├── instrucciones.md
+    └── README.md  # este archivo
 ```
+
+El README del proyecto está en `docs/README.md`; no hay otro README en la
+raíz. El árbol omite archivos locales generados, como `.venv/`, `.pytest_cache/`
+y `.DS_Store`.
 
 ## Requisitos e integración
 
@@ -117,6 +120,30 @@ from g5_programas.errors import registrar_errores
 registrar_errores(app)
 ```
 
+## API principal
+
+Todas las rutas usan el prefijo `/api/v1` y requieren la sesión Bearer que
+valida G2.
+
+| Método | Ruta | Función |
+|---|---|---|
+| `GET` / `POST` | `/course-programs` | Listar programas o crear un programa con su primer borrador |
+| `GET` | `/course-programs/{program_id}` | Consultar un programa y sus versiones |
+| `POST` | `/course-programs/{program_id}/versions` | Crear un borrador a partir de una versión autorizada |
+| `GET` / `PUT` | `/program-versions/{version_id}` | Consultar una versión o actualizar sus datos |
+| `PUT` | `/program-versions/{version_id}/sections/{section}` | Guardar una sección sin reemplazar las demás |
+| `POST` | `/program-versions/{version_id}/submit` | Enviar una versión a revisión |
+| `POST` | `/program-versions/{version_id}/review` | Iniciar la revisión |
+| `POST` | `/program-versions/{version_id}/return` | Devolver una versión con observación |
+| `POST` | `/program-versions/{version_id}/approve` | Aprobar una versión revisada |
+| `POST` | `/program-versions/{version_id}/authorize` | Autorizarla y hacerla vigente |
+| `GET` | `/program-versions/{version_id}/changes` | Comparar con la versión anterior del período |
+| `GET` | `/program-versions/{version_id}/pdf` | Descargar el PDF de una versión autorizada |
+
+Las rutas para `evaluacion` y `responsables` también tienen esquemas de entrada
+específicos para documentar y validar sus datos. Los errores controlados usan
+el formato común `{"error": {"code", "message", "details"}}`.
+
 ## Frontend y pruebas
 
 El frontend está en `frontend/` y se publica en `/app/g5/Programa.html`. El
@@ -166,6 +193,11 @@ Al crear una versión desde un trabajo de G3, el enlace puede incluir
 `&tarea_destinatario_origen_id=<id-de-asignacion>`. Si no se proporciona en
 una versión nueva, se conserva la asignación de origen de la versión clonada.
 
+Al autorizar una versión, G5 llama a `sp_autorizar_version` de G1. El trigger
+de G1 registra `program.authorized` en la tabla compartida `evento`; G6
+procesa ese evento para crear notificaciones. G5 no inserta una copia del
+evento desde Python.
+
 Ejecute las pruebas disponibles desde la raíz:
 
 ```bash
@@ -180,9 +212,5 @@ integración en la aplicación host y una base MySQL local de prueba.
 
 ## Documentación
 
-- [Guía práctica del proyecto](guia-del-proyecto.md): enlaces, arquitectura,
-  flujo, reglas de trabajo y uso opcional de asistentes de IA.
 - [Contrato G5](../CONTRATO.md): fuente vigente del contrato del módulo,
   ubicada en la raíz del proyecto.
-- [Instrucciones para QA](instrucciones.md): contexto, cambios que revisar,
-  pruebas y pendientes de integración.
