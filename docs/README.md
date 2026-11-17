@@ -180,6 +180,8 @@ integración en la aplicación host y una base MySQL local de prueba.
 
 ## Documentación
 
+- [Guía práctica del proyecto](guia-del-proyecto.md): enlaces, arquitectura,
+  flujo, reglas de trabajo y uso opcional de asistentes de IA.
 - [Contrato G5](../CONTRATO.md): fuente vigente del contrato del módulo,
   ubicada en la raíz del proyecto.
 - [Instrucciones para QA](instrucciones.md): contexto, cambios que revisar,

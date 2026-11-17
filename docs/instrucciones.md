@@ -34,16 +34,17 @@ el [contrato G5](../CONTRATO.md), ubicado en la raíz del proyecto, y el
   revisión, y Decanatura se conservan asociados a la versión. El PDF normaliza
   entidades HTML como `&amp;` para mostrar `&`.
 
-El selector se llena con los roles de la cuenta autenticada en G2. Solo cambia
-la vista de trabajo; el backend vuelve a validar los permisos en cada ruta.
-G5 usa únicamente los códigos oficiales de G1: `admin`, `coordinator`,
-`teacher`, `reviewer`, `authority` y `auditor`. El docente responsable elabora,
-edita y envía su propia versión; coordinación también puede elaborar y enviar.
-Coordinación y revisión pueden revisar, devolver y aprobar; `authority`
-autoriza. `admin`, coordinación y revisión pueden abrir versiones nuevas. El
-backend valida los roles oficiales y restringe al docente a sus versiones.
-Quien creó o envió la versión, o figura como su docente responsable, no puede
-aprobarla. El detalle por ID también aplica el filtro de propiedad del docente.
+La pantalla no permite cambiar el rol. Obtiene todos los roles de la cuenta
+autenticada en G2 y muestra las acciones correspondientes; el backend vuelve
+a validar los permisos en cada ruta. G5 usa únicamente los códigos oficiales
+de G1: `admin`, `coordinator`, `teacher`, `reviewer`, `authority` y `auditor`.
+El docente responsable elabora, edita y envía su propia versión; coordinación
+también puede elaborar y enviar. Coordinación y revisión pueden revisar,
+devolver y aprobar; `authority` autoriza. `admin`, coordinación y revisión
+pueden abrir versiones nuevas. El backend valida los roles oficiales y
+restringe al docente a sus versiones. Quien creó o envió la versión, o figura
+como su docente responsable, no puede aprobarla. El detalle por ID también
+aplica el filtro de propiedad del docente.
 
 ## Flujo que debe validar QA
 

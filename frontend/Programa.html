@@ -27,11 +27,11 @@
         <p>Programación Web</p>
 
         <nav>
-          <a href="#">Resumen</a>
-          <a href="#">Inbox</a>
-          <a href="#">Crear tarea</a>
-          <a href="#" class="active">Programa de curso</a>
-          <a href="#">API REST</a>
+          <a href="/app/">Inicio</a>
+          <a href="/app/g4/inbox.html">Inbox</a>
+          <a href="/app/g3/">Crear tarea</a>
+          <a href="/app/g5/Programa.html" class="active" aria-current="page">Programa de curso</a>
+          <a href="/api/v1/docs">API REST</a>
         </nav>
       </aside>
 
@@ -54,11 +54,7 @@
           </div>
 
           <div class="header-actions">
-            <div class="role-selector">
-              <label for="role">Rol activo</label>
-              <select id="role" class="role"></select>
-            </div>
-            <a class="btn-udv btn-udv-outline" href="/app/">Volver al portal</a>
+            <a href="/app/">Volver al portal</a>
           </div>
         </header>
 
@@ -112,6 +108,16 @@
                 placeholder="Escriba el nombre del coordinador académico"
               />
             </div>
+
+            <div class="field">
+              <label for="reviewer-name"> Revisor </label>
+
+              <input
+                type="text"
+                id="reviewer-name"
+                placeholder="Escriba el nombre del revisor"
+              />
+            </div>
           </div>
         </section>
 
@@ -160,17 +166,13 @@
                 <div class="field">
                   <label for="program-name"> Programa </label>
 
-                  <input
-                    type="text"
-                    id="program-name"
-                    placeholder="Ingeniería en Sistemas"
-                  />
+                  <input type="text" id="program-name" />
                 </div>
 
                 <div class="field">
                   <label for="department"> Departamento </label>
 
-                  <input type="text" id="department" placeholder="Tecnología" />
+                  <input type="text" id="department" />
                 </div>
 
                 <div class="field">
@@ -238,7 +240,7 @@
                 <div class="field">
                   <label for="hours"> Horas </label>
 
-                  <input type="number" id="hours" placeholder="64" />
+                  <input type="number" id="hours" />
                 </div>
 
                 <div class="field">

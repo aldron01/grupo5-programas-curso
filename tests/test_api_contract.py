@@ -964,6 +964,7 @@ class ApiContractTests(unittest.TestCase):
                     "docente": "Docente asignado",
                     "decanatura": "Decanatura de Tecnología",
                     "coordinador": "Coordinación",
+                    "revisor": "Revisor de curso",
                 },
                 actor_id=3,
                 responsible_context={"curso_id": 1, "periodo_id": 2, "sede_id": 1},
@@ -981,6 +982,7 @@ class ApiContractTests(unittest.TestCase):
             "docente": "Docente asignado",
             "decanatura": "Decanatura de Tecnología",
             "coordinador": "Coordinación",
+            "revisor": "Revisor de curso",
         })
         self.assertFalse(any(
             "SET docente_responsable_id" in str(call.args[0])

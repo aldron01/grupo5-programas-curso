@@ -381,7 +381,7 @@ def _save_section(
             )
         responsible_fields = {
             key: content[key]
-            for key in ("docente", "decanatura", "coordinador")
+            for key in ("docente", "decanatura", "coordinador", "revisor")
             if key in content
         }
         _save_g5_metadata(
