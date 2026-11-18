@@ -127,9 +127,9 @@ Estilos propios del proyecto.
 }
 
 .header h2 {
-  margin: 0 0 5px;
+  margin: 0;
   color: var(--udv-navy);
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 800;
 }
 
@@ -154,8 +154,23 @@ Estilos propios del proyecto.
 .status-title {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
+}
+
+.status-title .udv-badge {
+  padding: 3px 8px;
+  border-radius: var(--udv-radius-pill);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: .04em;
+}
+
+.status-title .version-label {
+  color: var(--udv-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 /* =========================
@@ -320,6 +335,43 @@ Estilos propios del proyecto.
   grid-column: 1 / -1;
 }
 
+.responsible-panel {
+  margin-top: 28px;
+  padding: 20px 24px;
+  border: 1px solid #E5E7EB;
+  border-radius: var(--udv-radius);
+  background: var(--udv-bg-white);
+  box-shadow: var(--udv-shadow-sm);
+}
+
+.responsible-panel h3 {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.responsible-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.responsible-grid .field {
+  grid-column: span 2;
+  min-width: 0;
+}
+
+.responsible-grid .field:nth-child(1),
+.responsible-grid .field:nth-child(2) {
+  grid-column: span 3;
+}
+
+.responsible-grid small {
+  margin-top: 6px;
+  color: var(--udv-text-muted);
+  line-height: 1.4;
+}
+
 label {
   margin-bottom: 6px;
   color: var(--udv-text-muted);
@@ -358,6 +410,155 @@ textarea {
   min-height: 90px;
 }
 
+.structured-editor {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #E5E7EB;
+  border-radius: var(--udv-radius);
+  background: var(--udv-bg-white);
+}
+
+.structured-editor table {
+  width: 100%;
+  min-width: 720px;
+  table-layout: fixed;
+}
+
+.structured-editor th {
+  white-space: nowrap;
+}
+
+.structured-editor td {
+  padding: 8px;
+  vertical-align: top;
+}
+
+.structured-editor td input,
+.structured-editor td textarea,
+.structured-editor td select {
+  min-width: 0;
+  min-height: 38px;
+  width: 100%;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  padding: 8px 10px;
+  box-shadow: none;
+  font-size: 13px;
+}
+
+.structured-editor td textarea {
+  min-height: 68px;
+  resize: vertical;
+}
+
+.structured-editor .number-column {
+  width: 72px;
+}
+
+.structured-editor .weight-column,
+.structured-editor .week-column,
+.structured-editor .hours-column {
+  width: 96px;
+}
+
+.structured-editor .action-column {
+  width: 48px;
+  text-align: center;
+}
+
+#bibliography-editor table {
+  min-width: 860px;
+}
+
+#bibliography-editor th:nth-child(1),
+#bibliography-editor td:nth-child(1) {
+  width: 64px;
+}
+
+#bibliography-editor th:nth-child(2),
+#bibliography-editor td:nth-child(2) {
+  width: 112px;
+}
+
+#bibliography-editor th:nth-child(4),
+#bibliography-editor td:nth-child(4) {
+  width: 128px;
+}
+
+#bibliography-editor th:nth-child(5),
+#bibliography-editor td:nth-child(5) {
+  width: 180px;
+}
+
+#evaluation-editor table {
+  min-width: 760px;
+}
+
+#competencies-editor table {
+  min-width: 620px;
+}
+
+#competencies-editor th:nth-child(1),
+#competencies-editor td:nth-child(1) {
+  width: 180px;
+}
+
+#profile-editor table {
+  min-width: 620px;
+}
+
+#profile-editor th:nth-child(1),
+#profile-editor td:nth-child(1),
+#profile-editor th:nth-child(2),
+#profile-editor td:nth-child(2) {
+  width: 96px;
+}
+
+#evaluation-editor th:nth-child(1),
+#evaluation-editor td:nth-child(1) {
+  width: 64px;
+}
+
+#evaluation-editor th:nth-child(2),
+#evaluation-editor td:nth-child(2) {
+  width: 160px;
+}
+
+#evaluation-editor th:nth-child(4),
+#evaluation-editor td:nth-child(4),
+#evaluation-editor th:nth-child(5),
+#evaluation-editor td:nth-child(5) {
+  width: 112px;
+}
+
+.structured-remove {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #FECACA;
+  border-radius: 50%;
+  background: #FFF5F5;
+  color: #B42318;
+  font-size: 18px;
+  line-height: 1;
+  box-shadow: none;
+}
+
+.structured-remove:hover {
+  transform: none;
+  background: #FEE2E2;
+  box-shadow: none;
+}
+
+.structured-editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+  background: #F8FAFC;
+  border-top: 1px solid #E5E7EB;
+}
+
 /* =========================
    TABLAS
    ========================= */
@@ -366,6 +567,26 @@ textarea {
   overflow-x: auto;
   border-radius: var(--udv-radius);
   box-shadow: var(--udv-shadow-sm);
+}
+
+#prerequisites table {
+  min-width: 620px;
+  table-layout: fixed;
+}
+
+#prerequisites th:first-child,
+#prerequisites td:first-child {
+  width: 48%;
+}
+
+#prerequisites th:nth-child(2),
+#prerequisites td:nth-child(2) {
+  width: 22%;
+}
+
+#prerequisites th:nth-child(3),
+#prerequisites td:nth-child(3) {
+  width: 18%;
 }
 
 table {
@@ -815,6 +1036,13 @@ select:focus-visible,
 
   .form {
     grid-template-columns: 1fr;
+  }
+
+  .responsible-grid,
+  .responsible-grid .field,
+  .responsible-grid .field:nth-child(1),
+  .responsible-grid .field:nth-child(2) {
+    grid-column: 1 / -1;
   }
 
   .header {

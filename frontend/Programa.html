@@ -6,6 +6,7 @@
     <title>Programa de Curso</title>
     <!-- ESTILOS Y LÓGICA DE LA INTERFAZ -->
     <link rel="stylesheet" href="/udv-styles/udv.css" />
+    <link rel="stylesheet" href="estilos/udv.css" />
     <link rel="stylesheet" href="estilos/style.css?v=auth-filters-1" />
     <script src="script.js?v=auth-filters-1" defer></script>
   </head>
@@ -40,14 +41,12 @@
         <!-- ENCABEZADO -->
         <header class="header">
           <div class="header-titles">
-            <h2>Programa del curso</h2>
-
             <div class="status-title">
+              <h2>Programa del curso</h2>
               <span id="program-status" class="udv-badge badge-draft">
                 BORRADOR
               </span>
-
-              <span id="version-number"> Versión 1 </span>
+              <span id="version-number" class="version-label">Versión 1</span>
             </div>
 
             <p id="save-status">Cargando programa...</p>
@@ -66,61 +65,6 @@
 
         <!-- VISTA PREVIA DEL DOCUMENTO QUE SE IMPRIME O GUARDA COMO PDF -->
         <article id="pdf-document" class="pdf-document" hidden></article>
-
-        <!-- RESPONSABLES -->
-        <section class="panel">
-          <h3>Responsables del programa</h3>
-
-          <div class="form">
-            <div class="field">
-              <label for="instructor"> Docente </label>
-
-              <input
-                type="text"
-                id="instructor"
-                placeholder="Se completa automáticamente"
-                readonly
-              />
-            </div>
-
-            <div class="field">
-              <label for="instructor-id">ID del docente</label>
-
-              <input type="number" id="instructor-id" min="1" step="1" disabled />
-              <small>Debe tener asignación activa al mismo curso, período y sede.</small>
-            </div>
-
-            <div class="field">
-              <label for="dean-name"> Decanatura </label>
-
-              <input
-                type="text"
-                id="dean-name"
-                placeholder="Escriba el nombre de la decanatura"
-              />
-            </div>
-
-            <div class="field">
-              <label for="coordinator-name"> Coordinador académico </label>
-
-              <input
-                type="text"
-                id="coordinator-name"
-                placeholder="Escriba el nombre del coordinador académico"
-              />
-            </div>
-
-            <div class="field">
-              <label for="reviewer-name"> Revisor </label>
-
-              <input
-                type="text"
-                id="reviewer-name"
-                placeholder="Escriba el nombre del revisor"
-              />
-            </div>
-          </div>
-        </section>
 
         <!-- ÁREA DEL PROGRAMA -->
         <div class="workspace">
@@ -265,11 +209,15 @@
                       <th>Asignatura</th>
                       <th>Código</th>
                       <th>Orden</th>
+                      <th class="action-column"></th>
                     </tr>
                   </thead>
 
                   <tbody></tbody>
                 </table>
+                <div class="structured-editor-footer">
+                  <button type="button" id="add-prerequisite" class="save">Agregar prerrequisito</button>
+                </div>
               </div>
             </div>
 
@@ -295,12 +243,9 @@
 
               <div class="form">
                 <div class="field full">
-                  <label for="competencies-data">Competencias (formato JSON)</label>
-
-                  <textarea
-                    id="competencies-data"
-                    placeholder='[{"tipo":"general","descripcion":"Competencia general"},{"tipo":"especifica","descripcion":"Competencia específica"}]'
-                  ></textarea>
+                  <label>Competencias</label>
+                  <div id="competencies-editor" class="structured-editor"></div>
+                  <textarea id="competencies-data" class="json-source" hidden></textarea>
                 </div>
               </div>
             </div>
@@ -311,12 +256,9 @@
 
               <div class="form">
                 <div class="field full">
-                  <label for="profile-data">Perfiles de egreso (formato JSON)</label>
-
-                  <textarea
-                    id="profile-data"
-                    placeholder='[{"perfil_egreso_id":1,"orden":1,"contribucion":"Contribución al perfil"}]'
-                  ></textarea>
+                  <label>Perfiles de egreso</label>
+                  <div id="profile-editor" class="structured-editor"></div>
+                  <textarea id="profile-data" class="json-source" hidden></textarea>
                 </div>
               </div>
             </div>
@@ -344,13 +286,10 @@
               <div class="form">
                 <div class="field full">
                   <label for="contents-data">
-                    Unidades y temas (formato JSON)
+                    Unidades y temas
                   </label>
-
-                  <textarea
-                    id="contents-data"
-                    placeholder='[{"orden":1,"titulo":"Unidad 1","horas":8,"items":[{"item":"Tema 1","descripcion":"Descripción"}]}]'
-                  ></textarea>
+                  <div id="contents-editor" class="structured-editor"></div>
+                  <textarea id="contents-data" class="json-source" hidden></textarea>
                 </div>
               </div>
             </div>
@@ -362,13 +301,10 @@
               <div class="form">
                 <div class="field full">
                   <label for="bibliography-data">
-                    Referencias bibliográficas (formato JSON)
+                    Referencias bibliográficas
                   </label>
-
-                  <textarea
-                    id="bibliography-data"
-                    placeholder='[{"orden":1,"tipo":"basica","referencia":"Autor. Título","isbn":"","url":""}]'
-                  ></textarea>
+                  <div id="bibliography-editor" class="structured-editor"></div>
+                  <textarea id="bibliography-data" class="json-source" hidden></textarea>
                 </div>
               </div>
             </div>
@@ -379,17 +315,64 @@
 
               <div class="form">
                 <div class="field full">
-                  <label for="evaluation-data">Actividades de evaluación (formato JSON)</label>
-
-                  <textarea
-                    id="evaluation-data"
-                    placeholder='[{"orden":1,"nombre":"Parcial 1","descripcion":"","ponderacion":30,"semana":5}]'
-                  ></textarea>
+                  <label for="evaluation-data">Actividades de evaluación</label>
+                  <div id="evaluation-editor" class="structured-editor"></div>
+                  <textarea id="evaluation-data" class="json-source" hidden></textarea>
                 </div>
               </div>
             </div>
           </section>
         </div>
+
+        <!-- RESPONSABLES -->
+        <section class="panel responsible-panel">
+          <h3>Responsables del programa</h3>
+
+          <div class="responsible-grid">
+            <div class="field">
+              <label for="instructor">Docente</label>
+              <input
+                type="text"
+                id="instructor"
+                placeholder="Se completa automáticamente"
+                readonly
+              />
+            </div>
+
+            <div class="field">
+              <label for="instructor-id">ID del docente</label>
+              <input type="number" id="instructor-id" min="1" step="1" disabled />
+              <small>Debe tener asignación activa al mismo curso, período y sede.</small>
+            </div>
+
+            <div class="field">
+              <label for="dean-name">Decanatura</label>
+              <input
+                type="text"
+                id="dean-name"
+                placeholder="Escriba el nombre de la decanatura"
+              />
+            </div>
+
+            <div class="field">
+              <label for="coordinator-name">Coordinador académico</label>
+              <input
+                type="text"
+                id="coordinator-name"
+                placeholder="Escriba el nombre del coordinador académico"
+              />
+            </div>
+
+            <div class="field">
+              <label for="reviewer-name">Revisor</label>
+              <input
+                type="text"
+                id="reviewer-name"
+                placeholder="Escriba el nombre del revisor"
+              />
+            </div>
+          </div>
+        </section>
 
         <!-- ACCIONES DEL FLUJO: guardar, revisar, aprobar, autorizar y generar PDF -->
         <div class="program-actions">

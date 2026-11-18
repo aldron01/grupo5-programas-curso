@@ -504,7 +504,235 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!Array.isArray(content)) {
       throw new Error(`El servidor devolvió "${section}" en un formato distinto a una lista.`);
     }
-    setValue(id, JSON.stringify(content, null, 2));
+    const json = JSON.stringify(content, null, 2);
+    setValue(id, json);
+    renderStructuredEditor(id, content);
+  }
+
+  function syncEditorToJson(id, items) {
+    setValue(id, JSON.stringify(items, null, 2));
+  }
+
+  function renderStructuredEditor(id, content) {
+    const editorConfig = {
+      "contents-data": "contents-editor",
+      "bibliography-data": "bibliography-editor",
+      "evaluation-data": "evaluation-editor",
+      "competencies-data": "competencies-editor",
+      "profile-data": "profile-editor",
+    };
+    const editor = document.getElementById(editorConfig[id]);
+    if (!editor) return;
+
+    const items = Array.isArray(content) ? content : [];
+    const rows = [...items];
+
+    const makeInput = (value, type = "text") => {
+      const input = document.createElement(type === "textarea" ? "textarea" : "input");
+      if (type !== "textarea") input.type = type;
+      input.value = value ?? "";
+      return input;
+    };
+
+    const makeHeader = (label, className = "") => {
+      const th = document.createElement("th");
+      th.textContent = label;
+      if (className) th.className = className;
+      return th;
+    };
+
+    const render = () => {
+      editor.replaceChildren();
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+
+      if (id === "contents-data") {
+        headerRow.append(
+          makeHeader("Orden", "number-column"),
+          makeHeader("Unidad"),
+          makeHeader("Horas", "hours-column"),
+          makeHeader("Temas"),
+          makeHeader("", "action-column"),
+        );
+      } else if (id === "competencies-data") {
+        headerRow.append(
+          makeHeader("Tipo"),
+          makeHeader("Descripción"),
+          makeHeader("", "action-column"),
+        );
+      } else if (id === "profile-data") {
+        headerRow.append(
+          makeHeader("ID"),
+          makeHeader("Orden", "number-column"),
+          makeHeader("Contribución"),
+          makeHeader("", "action-column"),
+        );
+      } else if (id === "bibliography-data") {
+        headerRow.append(
+          makeHeader("Orden", "number-column"),
+          makeHeader("Tipo"),
+          makeHeader("Referencia"),
+          makeHeader("ISBN"),
+          makeHeader("URL"),
+          makeHeader("", "action-column"),
+        );
+      } else {
+        headerRow.append(
+          makeHeader("Orden", "number-column"),
+          makeHeader("Actividad"),
+          makeHeader("Descripción"),
+          makeHeader("Ponderación", "weight-column"),
+          makeHeader("Semana", "week-column"),
+          makeHeader("", "action-column"),
+        );
+      }
+      thead.append(headerRow);
+      table.append(thead);
+
+      const tbody = document.createElement("tbody");
+      rows.forEach((item, index) => {
+        const tr = document.createElement("tr");
+
+        if (id === "competencies-data") {
+          const type = makeInput(item.tipo);
+          const description = makeInput(item.descripcion, "textarea");
+          [type, description].forEach((input) => {
+            const td = document.createElement("td");
+            td.append(input);
+            tr.append(td);
+          });
+          [type, description].forEach((input) => input.addEventListener("input", () => {
+            rows[index] = { tipo: type.value, descripcion: description.value };
+            syncEditorToJson(id, rows);
+          }));
+        } else if (id === "profile-data") {
+          const profileId = makeInput(item.perfil_egreso_id, "number");
+          const order = makeInput(item.orden, "number");
+          const contribution = makeInput(item.contribucion, "textarea");
+          [profileId, order, contribution].forEach((input) => {
+            const td = document.createElement("td");
+            td.append(input);
+            tr.append(td);
+          });
+          [profileId, order, contribution].forEach((input) => input.addEventListener("input", () => {
+            rows[index] = {
+              perfil_egreso_id: Number(profileId.value) || 0,
+              orden: Number(order.value) || index + 1,
+              contribucion: contribution.value,
+            };
+            syncEditorToJson(id, rows);
+          }));
+        } else if (id === "contents-data") {
+          const order = makeInput(item.orden, "number");
+          const title = makeInput(item.titulo);
+          const hours = makeInput(item.horas, "number");
+          const themes = makeInput((item.items || []).map((entry) => entry.item || "").join("\n"), "textarea");
+          [order, title, hours, themes].forEach((input) => {
+            const td = document.createElement("td");
+            td.append(input);
+            tr.append(td);
+          });
+          [order, title, hours, themes].forEach((orderOrInput) => orderOrInput.addEventListener("input", () => {
+            rows[index] = {
+              orden: Number(order.value) || index + 1,
+              titulo: title.value,
+              horas: Number(hours.value) || 0,
+              items: themes.value.split("\n").map((theme) => theme.trim()).filter(Boolean).map((theme) => ({ item: theme, descripcion: "" })),
+            };
+            syncEditorToJson(id, rows);
+          }));
+        } else if (id === "bibliography-data") {
+          const order = makeInput(item.orden, "number");
+          const type = makeInput(item.tipo);
+          const reference = makeInput(item.referencia, "textarea");
+          const isbn = makeInput(item.isbn);
+          const url = makeInput(item.url);
+          [order, type, reference, isbn, url].forEach((input) => {
+            const td = document.createElement("td");
+            td.append(input);
+            tr.append(td);
+          });
+          [order, type, reference, isbn, url].forEach((input) => input.addEventListener("input", () => {
+            rows[index] = {
+              orden: Number(order.value) || index + 1,
+              tipo: type.value,
+              referencia: reference.value,
+              isbn: isbn.value,
+              url: url.value,
+            };
+            syncEditorToJson(id, rows);
+          }));
+        } else {
+          const order = makeInput(item.orden, "number");
+          const name = makeInput(item.nombre);
+          const description = makeInput(item.descripcion, "textarea");
+          const weight = makeInput(item.ponderacion, "number");
+          const week = makeInput(item.semana, "number");
+          [order, name, description, weight, week].forEach((input) => {
+            const td = document.createElement("td");
+            td.append(input);
+            tr.append(td);
+          });
+          [order, name, description, weight, week].forEach((input) => input.addEventListener("input", () => {
+            rows[index] = {
+              orden: Number(order.value) || index + 1,
+              nombre: name.value,
+              descripcion: description.value,
+              ponderacion: Number(weight.value) || 0,
+              semana: Number(week.value) || 0,
+            };
+            syncEditorToJson(id, rows);
+          }));
+        }
+
+        const actionTd = document.createElement("td");
+        actionTd.className = "action-column";
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "structured-remove";
+        remove.textContent = "×";
+        remove.title = "Eliminar fila";
+        remove.addEventListener("click", () => {
+          rows.splice(index, 1);
+          render();
+          syncEditorToJson(id, rows);
+        });
+        actionTd.append(remove);
+        tr.append(actionTd);
+        tbody.append(tr);
+      });
+      table.append(tbody);
+      editor.append(table);
+
+      const footer = document.createElement("div");
+      footer.className = "structured-editor-footer";
+      const add = document.createElement("button");
+      add.type = "button";
+      add.className = "save";
+      add.textContent = id === "contents-data"
+        ? "Agregar unidad"
+        : id === "bibliography-data"
+          ? "Agregar referencia"
+          : id === "competencies-data"
+            ? "Agregar competencia"
+            : id === "profile-data"
+              ? "Agregar perfil"
+              : "Agregar actividad";
+      add.addEventListener("click", () => {
+        if (id === "contents-data") rows.push({ orden: rows.length + 1, titulo: "", horas: 0, items: [] });
+        else if (id === "bibliography-data") rows.push({ orden: rows.length + 1, tipo: "basica", referencia: "", isbn: "", url: "" });
+        else if (id === "competencies-data") rows.push({ tipo: "general", descripcion: "" });
+        else if (id === "profile-data") rows.push({ perfil_egreso_id: rows.length + 1, orden: rows.length + 1, contribucion: "" });
+        else rows.push({ orden: rows.length + 1, nombre: "", descripcion: "", ponderacion: 0, semana: 0 });
+        render();
+        syncEditorToJson(id, rows);
+      });
+      footer.append(add);
+      editor.append(footer);
+    };
+
+    render();
   }
 
   // Convierte los campos visibles del formulario al formato que espera la API.
@@ -616,9 +844,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       row.dataset.courseId = dataItem.curso_id ?? "";
       row.dataset.type = dataItem.tipo ?? "obligatorio";
+
+      const actionCell = document.createElement("td");
+      actionCell.className = "action-column";
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "structured-remove";
+      removeButton.textContent = "×";
+      removeButton.title = "Eliminar prerrequisito";
+      removeButton.addEventListener("click", () => {
+        row.remove();
+        renumberPrerequisites();
+      });
+      actionCell.append(removeButton);
+      row.append(actionCell);
       bodyElement.append(row);
     });
+    renumberPrerequisites();
   }
+
+  function renumberPrerequisites() {
+    const rows = [...document.querySelectorAll("#prerequisites tbody tr")];
+    rows.forEach((row, index) => {
+      const orderInput = row.querySelectorAll("input")[2];
+      if (orderInput) orderInput.value = String(index + 1);
+    });
+  }
+
+  $("#add-prerequisite")?.addEventListener("click", () => {
+    const rows = capturePrerequisites();
+    rows.push({ orden: rows.length + 1, nombre: "", codigo: "", tipo: "obligatorio" });
+    loadPrerequisiteRows(rows);
+  });
 
   // Cargar una versión, guardar cambios y actualizar el estado en pantalla.
   // Selecciona primero una versión editable; si no existe, muestra la vigente más reciente.
@@ -1296,6 +1553,80 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   async function restoreSession() {
+    if (searchParams.has("preview")) {
+      loginPanel.hidden = true;
+      appContainer.hidden = false;
+      programLoaded = true;
+      authenticatedRoles = new Set(["admin"]);
+
+      const previewValues = {
+        "instructor": "Ing. Carlos Méndez López",
+        "dean-name": "MSc. Ana Lucía Rodríguez",
+        "coordinator-name": "Lic. Luis Fernando Hernández",
+        "reviewer-name": "Ing. Patricia Lorena López",
+        "course-code": "WEB-301",
+        "course": "Programación Web",
+        "program-name": "Ingeniería en Sistemas",
+        "department": "Departamento de Ingeniería y Sistemas",
+        "faculty": "Facultad de Ingeniería",
+        "training-area": "Área de formación profesional",
+        "curriculum": "Pensum 2026",
+        "term": "Ciclo 6",
+        "year": "2026",
+        "level": "Licenciatura",
+        "modality": "Presencial",
+        "credits": "4",
+        "hours": "64",
+        "campus": "Sede Central - Ciudad de Guatemala",
+        "description-text": "Asignatura orientada al desarrollo de aplicaciones web dinámicas, accesibles y responsivas. El estudiante aplica HTML, CSS, JavaScript, programación del lado servidor, consumo de APIs REST y buenas prácticas de seguridad, pruebas y despliegue para resolver problemas reales.",
+        "methodology-text": "El curso combina clases magistrales, demostraciones prácticas, laboratorios guiados, aprendizaje basado en proyectos y trabajo colaborativo.",
+      };
+      Object.entries(previewValues).forEach(([id, value]) => setValue(id, value));
+
+      setListValue("competencies-data", [
+        { tipo: "general", descripcion: "Analiza y resuelve problemas tecnológicos con pensamiento crítico, creatividad y responsabilidad profesional." },
+        { tipo: "general", descripcion: "Trabaja de forma colaborativa y comunica propuestas técnicas con claridad." },
+        { tipo: "especifica", descripcion: "Desarrolla aplicaciones web completas aplicando arquitectura cliente-servidor y APIs REST." },
+        { tipo: "especifica", descripcion: "Evalúa la seguridad, calidad, accesibilidad y experiencia de usuario de sistemas web." },
+      ], "Competencias");
+
+      setListValue("profile-data", [
+        { perfil_egreso_id: 1, orden: 1, contribucion: "Diseña y desarrolla soluciones de software que responden a necesidades organizacionales y sociales." },
+        { perfil_egreso_id: 2, orden: 2, contribucion: "Integra tecnologías web actuales aplicando estándares internacionales y buenas prácticas." },
+        { perfil_egreso_id: 3, orden: 3, contribucion: "Gestiona proyectos tecnológicos con enfoque ético, seguro y sostenible." },
+      ], "Perfil de egreso");
+
+      setListValue("contents-data", [
+        { orden: 1, titulo: "Fundamentos de la arquitectura web", horas: 12, items: [{ item: "HTML semántico", descripcion: "" }, { item: "CSS responsivo", descripcion: "" }] },
+        { orden: 2, titulo: "Programación en el navegador", horas: 14, items: [{ item: "JavaScript moderno", descripcion: "" }, { item: "Consumo de APIs", descripcion: "" }] },
+        { orden: 3, titulo: "Aplicaciones cliente-servidor", horas: 18, items: [{ item: "APIs REST", descripcion: "" }, { item: "Seguridad básica", descripcion: "" }] },
+        { orden: 4, titulo: "Proyecto integrador", horas: 20, items: [{ item: "Planificación", descripcion: "" }, { item: "Desarrollo y despliegue", descripcion: "" }] },
+      ], "Contenidos");
+
+      setListValue("bibliography-data", [
+        { orden: 1, tipo: "basica", referencia: "Duckett, J. HTML and CSS: Design and Build Websites. Wiley, 2011.", isbn: "978-1118008188", url: "https://www.wiley.com/" },
+        { orden: 2, tipo: "basica", referencia: "Flanagan, D. JavaScript: The Definitive Guide. O Reilly Media, 2020.", isbn: "978-1491952023", url: "https://www.oreilly.com/" },
+        { orden: 3, tipo: "complementaria", referencia: "MDN Web Docs. Guías y referencias de tecnologías web.", isbn: "", url: "https://developer.mozilla.org/" },
+      ], "Bibliografía");
+
+      setListValue("evaluation-data", [
+        { orden: 1, nombre: "Laboratorios prácticos", descripcion: "Ejercicios de HTML, CSS y JavaScript", ponderacion: 20, semana: 4 },
+        { orden: 2, nombre: "Proyecto parcial", descripcion: "Desarrollo de una interfaz web dinámica", ponderacion: 30, semana: 8 },
+        { orden: 3, nombre: "API REST", descripcion: "Implementación y pruebas de servicios web", ponderacion: 20, semana: 12 },
+        { orden: 4, nombre: "Proyecto final", descripcion: "Aplicación completa con presentación técnica", ponderacion: 30, semana: 16 },
+      ], "Evaluación");
+
+      loadPrerequisiteRows([
+        { asignatura: "Fundamentos de Programación", codigo: "PROG-201", orden: 1 },
+        { asignatura: "Bases de Datos I", codigo: "BD-210", orden: 2 },
+      ]);
+
+      showMessage("Vista previa de ejemplo - Universidad Da Vinci de Guatemala");
+      programFields.forEach((control) => { control.disabled = false; });
+      updateInterface();
+      return;
+    }
+
     if (!accessToken) {
       loginStatus.textContent = "Primero inicia sesión desde el portal UDV.";
       return;
