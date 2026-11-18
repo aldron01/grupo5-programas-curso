@@ -11,7 +11,7 @@ import re
 from functools import lru_cache
 
 from fastapi import Request
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -35,7 +35,17 @@ def _session_factory():
     if not url:
         raise ApiError(503, "DATABASE_UNAVAILABLE", "La base de datos no está configurada.")
     engine = create_engine(url, pool_pre_ping=True, pool_recycle=1800)
+    if engine.dialect.name == "mysql":
+        event.listen(engine, "connect", _set_mysql_time_zone)
     return sessionmaker(bind=engine, expire_on_commit=False)
+
+
+def _set_mysql_time_zone(connection, _record):
+    cursor = connection.cursor()
+    try:
+        cursor.execute("SET time_zone = '+00:00'")
+    finally:
+        cursor.close()
 
 
 def get_session(request: Request):

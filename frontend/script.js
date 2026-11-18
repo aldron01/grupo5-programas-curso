@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const programStatus = $("#program-status");
   const versionNumberLabel = $("#version-number");
   const saveStatus = $("#save-status");
+  const versionUpdated = $("#version-updated");
 
   const instructor = $("#instructor");
   const deanName = $("#dean-name");
@@ -344,6 +345,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     saveStatus.textContent = message;
   }
 
+  function formatApiDate(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString("es-GT", {
+      timeZone: "America/Guatemala",
+    });
+  }
+
   function parseResponse(response) {
     return response.text().then((text) => {
       if (!text) return {};
@@ -587,7 +597,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const bodyElement = $("#prerequisites tbody");
     bodyElement.replaceChildren();
 
-    rows.forEach((dataItem) => {
+    (rows.length ? rows : [{}]).forEach((dataItem) => {
       const row = document.createElement("tr");
 
       [
@@ -919,6 +929,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     programStatus.classList.add(classes[state] || "badge-draft");
     versionNumberLabel.textContent = "Versión " + currentVersionNumber;
+    versionUpdated.textContent = currentVersion?.actualizado_en
+      ? `Última actualización: ${formatApiDate(currentVersion.actualizado_en)}`
+      : "";
 
     updateInterface();
     updateResponsibleEditing();
@@ -1124,7 +1137,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const metadata = createElement("div", "pdf-metadata");
     [
       ["Versión", String(currentVersionNumber)],
-      ["Emisión", new Date().toLocaleDateString("es-GT")],
+      ["Emisión", formatApiDate(new Date().toISOString())],
       ["Estado", programStatus.textContent.trim()],
     ].forEach(([tagName, dataItem]) => {
       const metadataItem = createElement("div", "pdf-metadata-item");
@@ -1206,7 +1219,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const date = createElement(
       "p",
       "pdf-authorization-date",
-      `Facultad de ${getValue("faculty") || "—"} · ${new Date().toLocaleDateString("es-GT")}`,
+      `Facultad de ${getValue("faculty") || "—"} · ${formatApiDate(new Date().toISOString())}`,
     );
     authorization.append(date);
 

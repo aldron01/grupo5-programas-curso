@@ -2,6 +2,7 @@ import asyncio
 import json
 import unittest
 from contextlib import nullcontext
+from datetime import datetime, timezone
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
@@ -13,6 +14,7 @@ from g5_programas.errors import ApiError, registrar_errores
 from g5_programas import repository
 from g5_programas.repository import (
     _assignment_origin_id,
+    _merge_section_content,
     _save_section,
     _validate_evaluations,
     _validate_responsible_teacher,
@@ -60,6 +62,29 @@ def _asgi_request(app, method, path, *, headers=(), body=b""):
 
 
 class ApiContractTests(unittest.TestCase):
+    def test_partial_section_updates_preserve_omitted_fields_by_order(self):
+        merged = _merge_section_content(
+            [
+                {"orden": 1, "nombre": "Parcial 1", "ponderacion": 30, "semana": 5},
+                {"orden": 2, "nombre": "Proyecto", "ponderacion": 70, "semana": 12},
+            ],
+            [{"orden": 1, "ponderacion": 35}],
+        )
+
+        self.assertEqual(
+            merged,
+            [{"orden": 1, "nombre": "Parcial 1", "ponderacion": 35, "semana": 5}],
+        )
+        self.assertEqual(_merge_section_content(merged, []), [])
+
+    def test_api_datetimes_are_serialized_as_utc_z_suffix(self):
+        value = datetime(2026, 11, 16, 15, 30, tzinfo=timezone.utc)
+
+        self.assertEqual(
+            repository.json_value(value),
+            "2026-11-16T15:30:00Z",
+        )
+
     def test_api_error_is_compatible_with_fastapi_handlers(self):
         error = ApiError(409, "CONFLICT", "No se puede continuar.", {"estado": "inválido"})
 
@@ -534,7 +559,7 @@ class ApiContractTests(unittest.TestCase):
             with self.assertRaises(ApiError) as caught:
                 repository.transition(session, coordinator, 41, "approve")
 
-        self.assertEqual(caught.exception.status, 403)
+        self.assertEqual(caught.exception.status, 409)
         session.execute.assert_not_called()
 
     def test_latest_submitter_cannot_approve_version(self):
@@ -561,7 +586,7 @@ class ApiContractTests(unittest.TestCase):
             with self.assertRaises(ApiError) as caught:
                 repository.transition(session, coordinator, 41, "approve")
 
-        self.assertEqual(caught.exception.status, 403)
+        self.assertEqual(caught.exception.status, 409)
         session.execute.assert_not_called()
 
     def test_reviewer_other_than_creator_or_submitter_can_approve(self):
@@ -830,6 +855,14 @@ class ApiContractTests(unittest.TestCase):
         with patch("g5_programas.repository.set_database_actor"), patch(
             "g5_programas.repository._require_version",
             return_value=version_row,
+        ), patch(
+            "g5_programas.repository._load_sections",
+            return_value={
+                "descripcion": {
+                    "contenido": {"texto": "Anterior", "nota": "Conservar"},
+                },
+                "responsables": {"contenido": {}},
+            },
         ), patch("g5_programas.repository._save_section") as save_section, patch(
             "g5_programas.repository._serialize_version",
             return_value={"id": 41, "estado": "draft"},
@@ -869,6 +902,10 @@ class ApiContractTests(unittest.TestCase):
             )
             self.assertEqual(status, 200)
             save_section.assert_called_once()
+            self.assertEqual(
+                save_section.call_args.args[3],
+                {"texto": "Actualizado", "nota": "Conservar"},
+            )
 
             save_section.reset_mock()
             status, response = _asgi_request(
@@ -1166,6 +1203,18 @@ class ApiContractTests(unittest.TestCase):
             "id": 80,
             "nombre": "Programa de curso",
             "docente_responsable_id": 1,
+            "curso_id": 1,
+            "sede_id": 1,
+        }
+        source_sections = {
+            "responsables": {
+                "contenido": {
+                    "docente_responsable_id": 1,
+                    "docente": "Docente asignado",
+                    "coordinador": "Coordinación",
+                    "decanatura": "Decanatura",
+                },
+            },
         }
 
         with patch.object(repository, "set_database_actor"), patch.object(
@@ -1173,8 +1222,10 @@ class ApiContractTests(unittest.TestCase):
         ), patch.object(
             repository, "_one", return_value=source
         ), patch.object(
-            repository, "_load_sections", return_value={}
+            repository, "_load_sections", return_value=source_sections
         ), patch.object(
+            repository, "_save_section"
+        ) as save_section, patch.object(
             repository, "_require_version", return_value={"id": 92}
         ), patch.object(
             repository, "_serialize_version", return_value={"id": 92, "numero_version": 5}
@@ -1191,6 +1242,15 @@ class ApiContractTests(unittest.TestCase):
         self.assertIn("docente_responsable_id", insert_sql)
         self.assertEqual(session.execute.call_args_list[1].args[1]["number"], 5)
         self.assertEqual(session.execute.call_args_list[1].args[1]["responsible_id"], 1)
+        self.assertEqual(save_section.call_args.args[2], "responsables")
+        self.assertEqual(
+            save_section.call_args.args[3],
+            {"docente": "Docente asignado", "coordinador": "Coordinación", "decanatura": "Decanatura"},
+        )
+        self.assertEqual(
+            save_section.call_args.args[5],
+            {"curso_id": 1, "periodo_id": 2, "sede_id": 1},
+        )
 
 
 if __name__ == "__main__":

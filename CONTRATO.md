@@ -90,6 +90,11 @@ integración con el mecanismo compartido de eventos.
   El docente puede crear el primer programa y borrador, siempre asignándose
   como responsable y con una asignación activa en G1.
 - Guardar una sección no sobrescribe las demás; las filas mantienen su orden.
+- En un PUT de sección, los campos omitidos de cada objeto con el mismo orden
+  se conservan; los registros que no se envían se eliminan y una lista vacía
+  elimina todos los registros de esa sección.
+- Las fechas y horas de la API se responden en UTC con sufijo `Z`; la pantalla
+  las muestra en la zona `America/Guatemala`.
 - Las secciones que la API representa como listas se envían y reciben como
   listas. Si falla el guardado de una sección, la pantalla informa cuál falló y
   detiene las solicitudes siguientes.

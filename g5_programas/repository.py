@@ -39,7 +39,12 @@ def json_value(value):
     """Pasa fechas, decimales y datos anidados a formatos que entiende JSON."""
     if isinstance(value, (datetime, date)):
         if isinstance(value, datetime):
-            return (value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value).isoformat()
+            utc_value = (
+                value.replace(tzinfo=timezone.utc)
+                if value.tzinfo is None
+                else value.astimezone(timezone.utc)
+            )
+            return utc_value.isoformat().replace("+00:00", "Z")
         return value.isoformat()
     if isinstance(value, Decimal):
         return float(value)
@@ -794,6 +799,39 @@ def _validate_sections(sections: dict):
             raise ApiError(422, "VALIDATION_ERROR", "El contenido de sección no es válido.", {name: "contenido debe ser un objeto o una lista."})
 
 
+def _merge_section_content(existing, updates):
+    """Aplica cambios parciales sin perder campos omitidos en filas existentes."""
+    if isinstance(existing, dict) and isinstance(updates, dict):
+        merged = existing.copy()
+        for key, value in updates.items():
+            merged[key] = (
+                _merge_section_content(existing[key], value)
+                if key in existing
+                else value
+            )
+        return merged
+
+    if isinstance(existing, list) and isinstance(updates, list):
+        if not updates:
+            return []
+        if all(isinstance(item, dict) and "orden" in item for item in existing) and all(
+            isinstance(item, dict) and "orden" in item for item in updates
+        ):
+            existing_by_order = {item["orden"]: item for item in existing}
+            return [
+                _merge_section_content(existing_by_order[item["orden"]], item)
+                if item["orden"] in existing_by_order
+                else item
+                for item in updates
+            ]
+        if len(existing) == len(updates):
+            return [
+                _merge_section_content(old, new)
+                for old, new in zip(existing, updates)
+            ]
+    return updates
+
+
 def _require_manager_for_responsible_change(
     actor: Actor,
     version: dict,
@@ -842,6 +880,11 @@ def update_version(session: Session, actor: Actor, version_id: int, body: dict, 
                 "Solo un gestor de programas o el docente responsable puede editarla.",
             )
         editable(row["estado_codigo"])
+        current_sections = (
+            _load_sections(session, row)
+            if section or "secciones" in body
+            else {}
+        )
         if section:
             if section not in {
                 "general", "descripcion", "prerrequisitos", "competencias",
@@ -853,6 +896,10 @@ def update_version(session: Session, actor: Actor, version_id: int, body: dict, 
                 raise ApiError(422, "VALIDATION_ERROR", "El contenido debe ser un objeto o una lista.", {"contenido": "Formato no válido."})
             if section == "responsables" and isinstance(content, dict):
                 _require_manager_for_responsible_change(actor, row, content)
+            content = _merge_section_content(
+                current_sections[section]["contenido"],
+                content,
+            )
             _save_section(
                 session,
                 version_id,
@@ -868,6 +915,10 @@ def update_version(session: Session, actor: Actor, version_id: int, body: dict, 
             if "secciones" in body:
                 _validate_sections(body["secciones"])
                 for name, value in body["secciones"].items():
+                    content = _merge_section_content(
+                        current_sections[name]["contenido"],
+                        value["contenido"],
+                    )
                     if name == "responsables":
                         _require_manager_for_responsible_change(
                             actor,
@@ -878,7 +929,7 @@ def update_version(session: Session, actor: Actor, version_id: int, body: dict, 
                         session,
                         version_id,
                         name,
-                        value["contenido"],
+                        content,
                         actor.id,
                         row,
                     )
@@ -942,8 +993,8 @@ def transition(
                 row.get("docente_responsable_id"),
             }:
                 raise ApiError(
-                    403,
-                    "FORBIDDEN",
+                    409,
+                    "CONFLICT",
                     "Quien elaboró, es responsable o envió la versión no puede aprobarla.",
                 )
             latest_submission = _one(
@@ -955,8 +1006,8 @@ def transition(
             )
             if latest_submission and latest_submission.get("actor_id") == actor.id:
                 raise ApiError(
-                    403,
-                    "FORBIDDEN",
+                    409,
+                    "CONFLICT",
                     "Quien elaboró, es responsable o envió la versión no puede aprobarla.",
                 )
 
@@ -1373,8 +1424,25 @@ def create_version(session: Session, actor: Actor, program_id: int, body: dict):
         version_id = result.lastrowid
         if source and body.get("clonar", True):
             for section_name, value in _load_sections(session, source).items():
-                if section_name != "responsables":
-                    _save_section(session, version_id, section_name, value["contenido"], actor.id)
+                content = value["contenido"]
+                if section_name == "responsables":
+                    content = {
+                        key: item
+                        for key, item in content.items()
+                        if key != "docente_responsable_id"
+                    }
+                _save_section(
+                    session,
+                    version_id,
+                    section_name,
+                    content,
+                    actor.id,
+                    {
+                        "curso_id": source["curso_id"],
+                        "periodo_id": period_id,
+                        "sede_id": source["sede_id"],
+                    },
+                )
         version = _serialize_version(session, _require_version(session, version_id))
     return version
 

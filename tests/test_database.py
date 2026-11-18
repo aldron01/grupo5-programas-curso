@@ -3,7 +3,11 @@ import unittest
 from unittest.mock import Mock, patch
 
 from g5_programas.auth import Actor
-from g5_programas.database import get_session, set_database_actor
+from g5_programas.database import (
+    _set_mysql_time_zone,
+    get_session,
+    set_database_actor,
+)
 
 
 class DatabaseSessionTests(unittest.TestCase):
@@ -47,6 +51,16 @@ class DatabaseSessionTests(unittest.TestCase):
             set_database_actor(session, actor)
 
         g2_helper.assert_called_once_with(session, 12, "192.0.2.10")
+
+    def test_sets_mysql_connection_time_zone_to_utc(self):
+        cursor = Mock()
+        connection = Mock()
+        connection.cursor.return_value = cursor
+
+        _set_mysql_time_zone(connection, None)
+
+        cursor.execute.assert_called_once_with("SET time_zone = '+00:00'")
+        cursor.close.assert_called_once_with()
 
     def test_sets_actor_and_ip_directly_when_g2_is_unavailable(self):
         session = Mock()
