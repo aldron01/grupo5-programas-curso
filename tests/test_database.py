@@ -2,6 +2,9 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import sessionmaker
+
 from g5_programas.auth import Actor
 from g5_programas.database import (
     _set_mysql_time_zone,
@@ -61,6 +64,33 @@ class DatabaseSessionTests(unittest.TestCase):
 
         cursor.execute.assert_called_once_with("SET time_zone = '+00:00'")
         cursor.close.assert_called_once_with()
+
+    def test_configures_host_factory_mysql_engine(self):
+        engine = create_engine("sqlite://")
+        engine.dialect.name = "mysql"
+        request = SimpleNamespace(
+            client=None,
+            app=SimpleNamespace(
+                state=SimpleNamespace(
+                    database_session_factory=sessionmaker(bind=engine),
+                )
+            ),
+        )
+
+        session_generator = get_session(request)
+        try:
+            next(session_generator)
+
+            self.assertTrue(
+                event.contains(
+                    engine.pool,
+                    "checkout",
+                    _set_mysql_time_zone,
+                )
+            )
+        finally:
+            session_generator.close()
+            engine.dispose()
 
     def test_sets_actor_and_ip_directly_when_g2_is_unavailable(self):
         session = Mock()

@@ -35,12 +35,20 @@ def _session_factory():
     if not url:
         raise ApiError(503, "DATABASE_UNAVAILABLE", "La base de datos no está configurada.")
     engine = create_engine(url, pool_pre_ping=True, pool_recycle=1800)
-    if engine.dialect.name == "mysql":
-        event.listen(engine, "connect", _set_mysql_time_zone)
+    _configure_mysql_time_zone(engine)
     return sessionmaker(bind=engine, expire_on_commit=False)
 
 
-def _set_mysql_time_zone(connection, _record):
+def _configure_mysql_time_zone(engine):
+    if engine.dialect.name == "mysql" and not event.contains(
+        engine.pool,
+        "checkout",
+        _set_mysql_time_zone,
+    ):
+        event.listen(engine.pool, "checkout", _set_mysql_time_zone)
+
+
+def _set_mysql_time_zone(connection, _record, _proxy=None):
     cursor = connection.cursor()
     try:
         cursor.execute("SET time_zone = '+00:00'")
@@ -54,6 +62,8 @@ def get_session(request: Request):
     session = factory()
     session.info["ip_origen"] = request.client.host if request.client else None
     try:
+        bind = session.get_bind()
+        _configure_mysql_time_zone(getattr(bind, "engine", bind))
         yield session
     except SQLAlchemyError as exc:
         session.rollback()
